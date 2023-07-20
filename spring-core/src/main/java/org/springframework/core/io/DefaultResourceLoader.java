@@ -16,6 +16,12 @@
 
 package org.springframework.core.io;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ResourceUtils;
+import org.springframework.util.StringUtils;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -23,12 +29,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ResourceUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * Default implementation of the {@link ResourceLoader} interface.
@@ -130,45 +130,56 @@ public class DefaultResourceLoader implements ResourceLoader {
 		return (Map<Resource, T>) this.resourceCaches.computeIfAbsent(valueType, key -> new ConcurrentHashMap<>());
 	}
 
-	/**
-	 * Clear all resource caches in this resource loader.
-	 * @since 5.0
-	 * @see #getResourceCache
-	 */
-	public void clearResourceCaches() {
-		this.resourceCaches.clear();
-	}
+    /**
+     * Clear all resource caches in this resource loader.
+     *
+     * @see #getResourceCache
+     * @since 5.0
+     */
+    public void clearResourceCaches() {
+        this.resourceCaches.clear();
+    }
 
 
-	@Override
-	public Resource getResource(String location) {
-		Assert.notNull(location, "Location must not be null");
+    /**
+     * 获取Resource的具体实现类实例
+     *
+     * @author yangwenxin
+     * @date 2023-07-15 10:08
+     */
+    @Override
+    public Resource getResource(String location) {
+        Assert.notNull(location, "Location must not be null");
 
-		for (ProtocolResolver protocolResolver : this.protocolResolvers) {
-			Resource resource = protocolResolver.resolve(location, this);
-			if (resource != null) {
-				return resource;
-			}
-		}
+        // ProtocolResolver，用户自定义协议资源解决策略
+        for (ProtocolResolver protocolResolver : this.protocolResolvers) {
+            Resource resource = protocolResolver.resolve(location, this);
+            if (resource != null) {
+                return resource;
+            }
+        }
 
-		if (location.startsWith("/")) {
-			return getResourceByPath(location);
-		}
-		else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
-			return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
-		}
-		else {
-			try {
-				// Try to parse the location as a URL...
-				URL url = new URL(location);
-				return (ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
-			}
-			catch (MalformedURLException ex) {
-				// No URL -> resolve as resource path.
-				return getResourceByPath(location);
-			}
-		}
-	}
+        // 如果是以/开头，则构造ClassPathContextResource返回
+        if (location.startsWith("/")) {
+            return getResourceByPath(location);
+        }
+        // 检查资源路径是否以classpath:前缀打头，如果是，则尝试构造ClassPathResource类型资源并返回
+        else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
+            return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());
+        } else {
+            try {
+                // Try to parse the location as a URL...
+                // 尝试通过URL，根据资源路径来定位资源
+                URL url = new URL(location);
+                // 定位到资源则构造UrlResource类型的资源并返回
+                return (ResourceUtils.isFileURL(url) ? new FileUrlResource(url) : new UrlResource(url));
+            } catch (MalformedURLException ex) {
+                // No URL -> resolve as resource path.
+                // 无法定位到资源则抛出MalformedURLException
+                return getResourceByPath(location);
+            }
+        }
+    }
 
 	/**
 	 * Return a Resource handle for the resource at the given path.

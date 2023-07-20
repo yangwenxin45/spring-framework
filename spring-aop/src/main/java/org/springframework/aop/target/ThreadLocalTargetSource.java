@@ -16,15 +16,15 @@
 
 package org.springframework.aop.target;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.springframework.aop.IntroductionAdvisor;
 import org.springframework.aop.support.DefaultIntroductionAdvisor;
 import org.springframework.aop.support.DelegatingIntroductionInterceptor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.NamedThreadLocal;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Alternative to an object pool. This {@link org.springframework.aop.TargetSource}
@@ -45,19 +45,21 @@ import org.springframework.core.NamedThreadLocal;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Rob Harrop
- * @see ThreadLocalTargetSourceStats
+ * @see org.springframework.aop.target.ThreadLocalTargetSourceStats
  * @see org.springframework.beans.factory.DisposableBean#destroy()
  */
+// 为不同的线程调用提供不同的目标对象
+// 可以保证各自线程上对目标对象的调用，可以被分配到当前线程对应的那个目标对象实例上
 @SuppressWarnings("serial")
 public class ThreadLocalTargetSource extends AbstractPrototypeBasedTargetSource
-		implements ThreadLocalTargetSourceStats, DisposableBean {
+        implements ThreadLocalTargetSourceStats, DisposableBean {
 
-	/**
-	 * ThreadLocal holding the target associated with the current
-	 * thread. Unlike most ThreadLocals, which are static, this variable
-	 * is meant to be per thread per instance of the ThreadLocalTargetSource class.
-	 */
-	private final ThreadLocal<Object> targetInThread =
+    /**
+     * ThreadLocal holding the target associated with the current
+     * thread. Unlike most ThreadLocals, which are static, this variable
+     * is meant to be per thread per instance of the ThreadLocalTargetSource class.
+     */
+    private final ThreadLocal<Object> targetInThread =
 			new NamedThreadLocal<>("Thread-local instance of bean '" + getTargetBeanName() + "'");
 
 	/**

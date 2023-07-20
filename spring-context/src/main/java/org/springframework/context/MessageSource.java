@@ -16,9 +16,9 @@
 
 package org.springframework.context;
 
-import java.util.Locale;
-
 import org.springframework.lang.Nullable;
+
+import java.util.Locale;
 
 /**
  * Strategy interface for resolving messages, with support for the parameterization
@@ -37,6 +37,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.context.support.ResourceBundleMessageSource
  * @see org.springframework.context.support.ReloadableResourceBundleMessageSource
  */
+// 在Java SE的国际化支持的基础上，进一步抽象了国际化信息的访问接口
 public interface MessageSource {
 
 	/**
@@ -54,6 +55,7 @@ public interface MessageSource {
 	 * @see #getMessage(MessageSourceResolvable, Locale)
 	 * @see java.text.MessageFormat
 	 */
+    // 根据传入的资源条目的键（对应方法声明中的code参数）、信息参数以及Locale来查找信息，如果没有找到，则返回指定的defaultMessage
 	@Nullable
 	String getMessage(String code, @Nullable Object[] args, @Nullable String defaultMessage, Locale locale);
 
@@ -71,6 +73,7 @@ public interface MessageSource {
 	 * @see #getMessage(MessageSourceResolvable, Locale)
 	 * @see java.text.MessageFormat
 	 */
+    // 根据传入的资源条目的键（对应方法声明中的code参数）、信息参数以及Locale来查找信息，如果没有找到，将抛出NoSuchMessageException异常
 	String getMessage(String code, @Nullable Object[] args, Locale locale) throws NoSuchMessageException;
 
 	/**
@@ -81,16 +84,18 @@ public interface MessageSource {
 	 * {@code defaultMessage} property of the resolvable is {@code null} or not.
 	 * @param resolvable the value object storing attributes required to resolve a message
 	 * (may include a default message)
-	 * @param locale the locale in which to do the lookup
-	 * @return the resolved message (never {@code null} since even a
-	 * {@code MessageSourceResolvable}-provided default message needs to be non-null)
-	 * @throws NoSuchMessageException if no corresponding message was found
-	 * (and no default message was provided by the {@code MessageSourceResolvable})
-	 * @see MessageSourceResolvable#getCodes()
-	 * @see MessageSourceResolvable#getArguments()
-	 * @see MessageSourceResolvable#getDefaultMessage()
-	 * @see java.text.MessageFormat
-	 */
-	String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException;
+     * @param locale the locale in which to do the lookup
+     * @return the resolved message (never {@code null} since even a
+     * {@code MessageSourceResolvable}-provided default message needs to be non-null)
+     * @throws NoSuchMessageException if no corresponding message was found
+     * (and no default message was provided by the {@code MessageSourceResolvable})
+     * @see MessageSourceResolvable#getCodes()
+     * @see MessageSourceResolvable#getArguments()
+     * @see MessageSourceResolvable#getDefaultMessage()
+     * @see java.text.MessageFormat
+     */
+    // 使用MessageSourceResolvable对象对资源条目的键、信息参数进行封装，将封住了这些信息的MessageSourceResolvable对象作为查询参数来调用以上方法
+    // 如果根据MessageSourceResolvable中的信息查找不到相应条目内容，将抛出NoSuchMessageException异常
+    String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException;
 
 }

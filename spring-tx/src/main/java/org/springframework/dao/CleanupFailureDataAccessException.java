@@ -29,6 +29,7 @@ package org.springframework.dao;
  *
  * @author Rod Johnson
  */
+// 当已经成功完成相应的数据访问操作，要对使用的资源进行清理却失败的时候，将抛出该异常
 @SuppressWarnings("serial")
 public class CleanupFailureDataAccessException extends NonTransientDataAccessException {
 

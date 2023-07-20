@@ -27,6 +27,7 @@ package org.springframework.aop;
  * @see Pointcut
  * @see MethodMatcher
  */
+// 对Joinpoint所处的对象进行Class级别的类型匹配
 @FunctionalInterface
 public interface ClassFilter {
 
@@ -41,6 +42,7 @@ public interface ClassFilter {
 	/**
 	 * Canonical instance of a ClassFilter that matches all classes.
 	 */
+    // 会针对系统中所有的目标类以及它们的实例进行
 	ClassFilter TRUE = TrueClassFilter.INSTANCE;
 
 }

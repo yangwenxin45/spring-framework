@@ -16,19 +16,18 @@
 
 package org.springframework.beans.factory.xml;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.lang.Nullable;
+import org.springframework.util.xml.XmlValidationModeDetector;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 
-import org.springframework.lang.Nullable;
-import org.springframework.util.xml.XmlValidationModeDetector;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Spring's default {@link DocumentLoader} implementation.
@@ -55,27 +54,36 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	/**
 	 * JAXP attribute value indicating the XSD schema language.
 	 */
-	private static final String XSD_SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
+    private static final String XSD_SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
 
 
-	private static final Log logger = LogFactory.getLog(DefaultDocumentLoader.class);
+    private static final Log logger = LogFactory.getLog(DefaultDocumentLoader.class);
 
 
-	/**
-	 * Load the {@link Document} at the supplied {@link InputSource} using the standard JAXP-configured
-	 * XML parser.
-	 */
-	@Override
-	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
-			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
+    /**
+     * Load the {@link Document} at the supplied {@link InputSource} using the standard JAXP-configured
+     * XML parser.
+     */
+    /**
+     * 通过SAX解析XML文档的套路大致相同：
+     * 首先创建DocumentBuilderFactory，
+     * 再通过DocumentBuilderFactory创建DocumentBuilder，
+     * 进而解析inputSource来返回Document对象
+     *
+     * @author yangwenxin
+     * @date 2023-07-04 17:40
+     */
+    @Override
+    public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
+                                 ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
 
-		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
-		if (logger.isDebugEnabled()) {
-			logger.debug("Using JAXP provider [" + factory.getClass().getName() + "]");
-		}
-		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
-		return builder.parse(inputSource);
-	}
+        DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Using JAXP provider [" + factory.getClass().getName() + "]");
+        }
+        DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+        return builder.parse(inputSource);
+    }
 
 	/**
 	 * Create the {@link DocumentBuilderFactory} instance.

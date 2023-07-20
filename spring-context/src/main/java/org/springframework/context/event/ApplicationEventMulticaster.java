@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @author Stephane Nicoll
  */
+// 定义了具体事件监听器的注册管理以及事件发布的方法
 public interface ApplicationEventMulticaster {
 
 	/**

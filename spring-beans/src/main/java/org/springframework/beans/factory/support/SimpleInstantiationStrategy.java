@@ -16,13 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedExceptionAction;
-
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanFactory;
@@ -30,6 +23,13 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 
 /**
  * Simple object instantiation strategy for use in a BeanFactory.
@@ -106,16 +106,18 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner,
 			final Constructor<?> ctor, @Nullable Object... args) {
 
-		if (!bd.hasMethodOverrides()) {
-			if (System.getSecurityManager() != null) {
-				// use own privileged to change accessibility (when security is on)
-				AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-					ReflectionUtils.makeAccessible(ctor);
-					return null;
-				});
-			}
-			return (args != null ? BeanUtils.instantiateClass(ctor, args) : BeanUtils.instantiateClass(ctor));
-		}
+        // 如果有需要覆盖或者动态替换的方法则当前需要使用cglib进行动态代理，因为可以在创建代理的同时将动态方法织入类中
+        // 但是如果没有需要动态改变的方法，为了方便直接反射就可以了
+        if (!bd.hasMethodOverrides()) {
+            if (System.getSecurityManager() != null) {
+                // use own privileged to change accessibility (when security is on)
+                AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                    ReflectionUtils.makeAccessible(ctor);
+                    return null;
+                });
+            }
+            return (args != null ? BeanUtils.instantiateClass(ctor, args) : BeanUtils.instantiateClass(ctor));
+        }
 		else {
 			return instantiateWithMethodInjection(bd, beanName, owner, ctor, args);
 		}

@@ -31,30 +31,37 @@ import org.springframework.beans.BeansException;
  * @see #setBeanFactory
  * @see #setTargetBeanName
  */
+
+/**
+ * PrototypeTargetSource每次都需要返回新的对象实例，需要注意两点：
+ * 1. 目标对象的bean定义声明的scope必须为prototype
+ * 2. 通过targetBeanName属性指定目标对象的bean定义名称，而不是引用
+ */
 @SuppressWarnings("serial")
 public class PrototypeTargetSource extends AbstractPrototypeBasedTargetSource {
 
-	/**
-	 * Obtain a new prototype instance for every call.
-	 * @see #newPrototypeInstance()
-	 */
-	@Override
-	public Object getTarget() throws BeansException {
-		return newPrototypeInstance();
-	}
+    /**
+     * Obtain a new prototype instance for every call.
+     *
+     * @see #newPrototypeInstance()
+     */
+    @Override
+    public Object getTarget() throws BeansException {
+        return newPrototypeInstance();
+    }
 
-	/**
-	 * Destroy the given independent instance.
-	 * @see #destroyPrototypeInstance
-	 */
-	@Override
-	public void releaseTarget(Object target) {
-		destroyPrototypeInstance(target);
-	}
+    /**
+     * Destroy the given independent instance.
+     * @see #destroyPrototypeInstance
+     */
+    @Override
+    public void releaseTarget(Object target) {
+        destroyPrototypeInstance(target);
+    }
 
-	@Override
-	public String toString() {
-		return "PrototypeTargetSource for target bean with name '" + getTargetBeanName() + "'";
-	}
+    @Override
+    public String toString() {
+        return "PrototypeTargetSource for target bean with name '" + getTargetBeanName() + "'";
+    }
 
 }

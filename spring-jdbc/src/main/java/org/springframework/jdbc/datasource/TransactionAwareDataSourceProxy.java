@@ -16,6 +16,10 @@
 
 package org.springframework.jdbc.datasource;
 
+import org.springframework.lang.Nullable;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import javax.sql.DataSource;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,10 +27,6 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import javax.sql.DataSource;
-
-import org.springframework.lang.Nullable;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Proxy for a target JDBC {@link javax.sql.DataSource}, adding awareness of
@@ -73,6 +73,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * @see DataSourceUtils#applyTransactionTimeout
  * @see DataSourceUtils#doReleaseConnection
  */
+// TransactionAwareDataSourceProxy会对一个DataSource目标对象进行封装，所有从TransactionAwareDataSourceProxy取得的Connection将自动加入事务管理
 public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
 
 	private boolean reobtainTransactionalConnections = false;

@@ -25,16 +25,23 @@ import org.springframework.lang.Nullable;
  *
  * @author Rod Johnson
  */
+
+/**
+ * 出现其他无法详细分类的数据访问异常，可以抛出UncategorizedScriptException
+ * 该异常定义为abstract，如果对于特定的数据访问方式来说，以上的异常类型无法描述当前数据访问方式中特定的异常情况，
+ * 那么可以通过扩展UncategorizedDataAccessException来进一步细化特定的数据访问异常类型
+ */
 @SuppressWarnings("serial")
 public abstract class UncategorizedDataAccessException extends NonTransientDataAccessException {
 
-	/**
-	 * Constructor for UncategorizedDataAccessException.
-	 * @param msg the detail message
-	 * @param cause the exception thrown by underlying data access API
-	 */
-	public UncategorizedDataAccessException(@Nullable String msg, @Nullable Throwable cause) {
-		super(msg, cause);
-	}
+    /**
+     * Constructor for UncategorizedDataAccessException.
+     *
+     * @param msg   the detail message
+     * @param cause the exception thrown by underlying data access API
+     */
+    public UncategorizedDataAccessException(@Nullable String msg, @Nullable Throwable cause) {
+        super(msg, cause);
+    }
 
 }

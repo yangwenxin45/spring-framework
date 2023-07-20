@@ -16,12 +16,12 @@
 
 package org.springframework.jdbc.support.lob;
 
+import org.springframework.lang.Nullable;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Abstract base class for {@link LobHandler} implementations.
@@ -33,6 +33,7 @@ import org.springframework.lang.Nullable;
  * @since 1.2
  * @see java.sql.ResultSet#findColumn
  */
+// 这个抽象类的逻辑就是将LobHandler中位于同一组的重载方法其中一个的逻辑委托给另一个
 public abstract class AbstractLobHandler implements LobHandler {
 
 	@Override

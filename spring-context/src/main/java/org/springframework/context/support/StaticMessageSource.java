@@ -16,13 +16,13 @@
 
 package org.springframework.context.support;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
 
 /**
  * Simple implementation of {@link org.springframework.context.MessageSource}
@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
+// MessageSource接口的简单实现，可以通过编程的方式添加信息条目，多用于测试，不应该用于正式的生产环境
 public class StaticMessageSource extends AbstractMessageSource {
 
 	/** Map from 'code + locale' keys to message Strings */

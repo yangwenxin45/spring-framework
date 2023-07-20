@@ -34,6 +34,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.web.servlet.FrameworkServlet
  * @see org.springframework.context.ApplicationContext#publishEvent
  */
+// Web请求处理后发布的事件
 @SuppressWarnings("serial")
 public class RequestHandledEvent extends ApplicationEvent {
 

@@ -25,6 +25,7 @@ import java.util.EventObject;
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
+// Spring容器内自定义事件类型，继承自java.util.EventObject
 public abstract class ApplicationEvent extends EventObject {
 
 	/** use serialVersionUID from Spring 1.2 for interoperability */

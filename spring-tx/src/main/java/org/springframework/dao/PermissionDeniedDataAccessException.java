@@ -23,6 +23,7 @@ package org.springframework.dao;
  * @author Juergen Hoeller
  * @since 2.0
  */
+// 尝试访问某数据，而自身却没有相应权限的情况下，将抛出该异常
 @SuppressWarnings("serial")
 public class PermissionDeniedDataAccessException extends NonTransientDataAccessException {
 

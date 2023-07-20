@@ -24,6 +24,7 @@ package org.springframework.dao;
  *
  * @author Rod Johnson
  */
+// 数据一致性冲突异常，是在我们尝试更新数据却违反了数据一致性检查的情况下，将会抛出该异常
 @SuppressWarnings("serial")
 public class DataIntegrityViolationException extends NonTransientDataAccessException {
 

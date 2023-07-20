@@ -16,11 +16,7 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 /**
  * Enables support for handling components marked with AspectJ's {@code @Aspect} annotation,
@@ -126,6 +122,7 @@ public @interface EnableAspectJAutoProxy {
 	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed
 	 * to standard Java interface-based proxies. The default is {@code false}.
 	 */
+	// 强制使用cglib代理
 	boolean proxyTargetClass() default false;
 
 	/**
@@ -134,6 +131,7 @@ public @interface EnableAspectJAutoProxy {
 	 * Off by default, i.e. no guarantees that {@code AopContext} access will work.
 	 * @since 4.3.1
 	 */
+    // 暴露代理对象，为了解决目标对象内部的自我调用无法实施切面中的增强问题
 	boolean exposeProxy() default false;
 
 }

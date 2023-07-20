@@ -16,13 +16,13 @@
 
 package org.springframework.jdbc.datasource;
 
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
  * Simple implementation of the standard JDBC {@link javax.sql.DataSource} interface,
@@ -63,16 +63,18 @@ import org.springframework.util.ClassUtils;
  * @since 14.03.2003
  * @see SimpleDriverDataSource
  */
+// DriverManagerDataSource的提出，主要是为了替换最古老的基于java.sql.DriverManager获取连接的方式
+// DriverManagerDataSource没有提供连接缓冲池的功能，在某些情况下应该避免将其应用于生产环境
 public class DriverManagerDataSource extends AbstractDriverBasedDataSource {
 
-	/**
-	 * Constructor for bean-style configuration.
-	 */
-	public DriverManagerDataSource() {
-	}
+    /**
+     * Constructor for bean-style configuration.
+     */
+    public DriverManagerDataSource() {
+    }
 
-	/**
-	 * Create a new DriverManagerDataSource with the given JDBC URL,
+    /**
+     * Create a new DriverManagerDataSource with the given JDBC URL,
 	 * not specifying a username or password for JDBC access.
 	 * @param url the JDBC URL to use for accessing the DriverManager
 	 * @see java.sql.DriverManager#getConnection(String)

@@ -16,11 +16,11 @@
 
 package org.springframework.transaction.support;
 
-import java.io.Serializable;
-
 import org.springframework.core.Constants;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.TransactionDefinition;
+
+import java.io.Serializable;
 
 /**
  * Default implementation of the {@link TransactionDefinition} interface,
@@ -33,6 +33,7 @@ import org.springframework.transaction.TransactionDefinition;
  * @author Juergen Hoeller
  * @since 08.05.2003
  */
+// DefaultTransactionDefinition是TransactionDefinition接口的默认实现类，它提供了各事务属性的默认值
 @SuppressWarnings("serial")
 public class DefaultTransactionDefinition implements TransactionDefinition, Serializable {
 

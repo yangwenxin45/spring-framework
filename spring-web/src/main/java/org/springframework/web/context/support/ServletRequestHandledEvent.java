@@ -27,6 +27,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.web.servlet.FrameworkServlet
  * @see org.springframework.context.ApplicationContext#publishEvent
  */
+// 提供特定于Java EE的Servlet相关事件
 @SuppressWarnings("serial")
 public class ServletRequestHandledEvent extends RequestHandledEvent {
 

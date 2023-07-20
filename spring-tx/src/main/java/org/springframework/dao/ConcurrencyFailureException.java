@@ -31,6 +31,7 @@ import org.springframework.lang.Nullable;
  * @see CannotAcquireLockException
  * @see DeadlockLoserDataAccessException
  */
+// 并发进行数据访问操作失败的时候，可以抛出ConcurrencyFailureException
 @SuppressWarnings("serial")
 public class ConcurrencyFailureException extends TransientDataAccessException {
 

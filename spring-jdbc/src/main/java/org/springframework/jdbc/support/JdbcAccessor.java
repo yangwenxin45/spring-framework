@@ -16,14 +16,13 @@
 
 package org.springframework.jdbc.support;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import javax.sql.DataSource;
 
 /**
  * Base class for {@link org.springframework.jdbc.core.JdbcTemplate} and
@@ -34,21 +33,25 @@ import org.springframework.util.Assert;
  * See {@link org.springframework.jdbc.core.JdbcTemplate}.
  *
  * @author Juergen Hoeller
- * @since 28.11.2003
  * @see org.springframework.jdbc.core.JdbcTemplate
+ * @since 28.11.2003
  */
+// 主要为子类提供一些公用的属性
 public abstract class JdbcAccessor implements InitializingBean {
 
-	/** Logger available to subclasses */
-	protected final Log logger = LogFactory.getLog(getClass());
+    /** Logger available to subclasses */
+    protected final Log logger = LogFactory.getLog(getClass());
 
-	@Nullable
-	private DataSource dataSource;
+    // 作为获取数据库资源的统一接口，用来替代基于java.sql.DriverManager的数据库连接创建方式
+    // DataSource的角色可以看做JDBC的连接工厂，具体实现可以引入对数据库连接的缓冲池以及分布式事务支持
+    @Nullable
+    private DataSource dataSource;
 
-	@Nullable
-	private volatile SQLExceptionTranslator exceptionTranslator;
+    // JdbcTemplate可以在处理SQLException的时候，委托具体的SQLExceptionTranslator实现类来进行SQLException的转译
+    @Nullable
+    private volatile SQLExceptionTranslator exceptionTranslator;
 
-	private boolean lazyInit = true;
+    private boolean lazyInit = true;
 
 
 	/**

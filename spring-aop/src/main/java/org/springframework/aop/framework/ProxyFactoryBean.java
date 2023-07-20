@@ -16,18 +16,10 @@
 
 package org.springframework.aop.framework;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.Interceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.aop.Advisor;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.adapter.AdvisorAdapterRegistry;
@@ -35,18 +27,19 @@ import org.springframework.aop.framework.adapter.GlobalAdvisorAdapterRegistry;
 import org.springframework.aop.framework.adapter.UnknownAdviceTypeException;
 import org.springframework.aop.target.SingletonTargetSource;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.FactoryBeanNotInitializedException;
-import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.*;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * {@link org.springframework.beans.factory.FactoryBean} implementation that builds an
@@ -88,27 +81,37 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.aop.Advisor
  * @see Advised
  */
+// ProxyFactoryBean即Proxy+FactoryBean，本质上是一个用来生产Proxy的FactoryBean
 @SuppressWarnings("serial")
 public class ProxyFactoryBean extends ProxyCreatorSupport
-		implements FactoryBean<Object>, BeanClassLoaderAware, BeanFactoryAware {
+        implements FactoryBean<Object>, BeanClassLoaderAware, BeanFactoryAware {
 
-	/**
-	 * This suffix in a value in an interceptor list indicates to expand globals.
-	 */
-	public static final String GLOBAL_SUFFIX = "*";
+    /**
+     * This suffix in a value in an interceptor list indicates to expand globals.
+     */
+    public static final String GLOBAL_SUFFIX = "*";
 
 
-	protected final Log logger = LogFactory.getLog(getClass());
+    protected final Log logger = LogFactory.getLog(getClass());
 
-	@Nullable
-	private String[] interceptorNames;
+    /**
+     * 通过该属性，我们可以指定多个将要织入到目标对象的Advice、拦截器以及Advisor，而再也不用通过ProxyFactory那样的addAdvice或addAdvisor方法一个一个地添加了
+     * 该属性的两个特性：
+     * 1. 如果没有通过相应的设置目标对象的方法明确为ProxyFactoryBean设置目标对象，那么可以在interceptorName的最后一个元素位置，放置目标对象的bean定义名称
+     * 这是个特例，大部分情况下，还是建议明确指定目标对象，避免这种配置方式
+     * 2. 通过在指定的interceptorName某个元素名称之后添加*通配符，可以让ProxyFactoryBean在容器中搜寻符合条件的所有的Advisor并应用到目标对象
+     */
+    @Nullable
+    private String[] interceptorNames;
 
-	@Nullable
-	private String targetName;
+    @Nullable
+    private String targetName;
 
-	private boolean autodetectInterfaces = true;
+    // 该属性默认值为true，即如果没有明确指定要代理的接口类型，ProxyFactoryBean会自动检测目标对象所实现的接口类型并进行代理
+    private boolean autodetectInterfaces = true;
 
-	private boolean singleton = true;
+    // 因为ProxyFactoryBean本质上是一个FactoryBean，所以我们可以通过singleton属性，指定每次getObject调用是返回同一个代理对象，还是返回一个新的
+    private boolean singleton = true;
 
 	private AdvisorAdapterRegistry advisorAdapterRegistry = GlobalAdvisorAdapterRegistry.getInstance();
 
@@ -248,6 +251,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	@Nullable
 	public Object getObject() throws BeansException {
 		initializeAdvisorChain();
+        // 标明返回的对象是以singleton的scope返回，还是以prototype的scope返回
 		if (isSingleton()) {
 			return getSingletonInstance();
 		}

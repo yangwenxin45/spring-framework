@@ -16,15 +16,15 @@
 
 package org.springframework.jdbc.core;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.lang.Nullable;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Interface specifying a basic set of JDBC operations.
@@ -42,6 +42,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @see JdbcTemplate
  */
+// 接口定义界定了JdbcTemplate可以使用的JDBC操作集合
 public interface JdbcOperations {
 
 	//-------------------------------------------------------------------------

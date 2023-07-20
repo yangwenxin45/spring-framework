@@ -16,13 +16,13 @@
 
 package org.springframework.core.io;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
 
 /**
  * {@link Resource} implementation for a given byte array.
@@ -40,16 +40,18 @@ import org.springframework.util.Assert;
  * @see InputStreamResource
  * @see org.springframework.mail.javamail.MimeMessageHelper#addAttachment(String, InputStreamSource)
  */
+// 将字节数组提供的数据作为一种资源进行封装
+// 如果通过InputStream形式访问该类型的资源，该实现会根据字节数组的数据，构造相应的ByteArrayInputStream并返回
 public class ByteArrayResource extends AbstractResource {
 
-	private final byte[] byteArray;
+    private final byte[] byteArray;
 
-	private final String description;
+    private final String description;
 
 
-	/**
-	 * Create a new {@code ByteArrayResource}.
-	 * @param byteArray the byte array to wrap
+    /**
+     * Create a new {@code ByteArrayResource}.
+     * @param byteArray the byte array to wrap
 	 */
 	public ByteArrayResource(byte[] byteArray) {
 		this(byteArray, "resource loaded from byte array");

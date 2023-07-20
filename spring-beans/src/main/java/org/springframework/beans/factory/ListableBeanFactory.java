@@ -16,12 +16,12 @@
 
 package org.springframework.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
+
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
@@ -30,9 +30,9 @@ import org.springframework.lang.Nullable;
  * preload all their bean definitions (such as XML-based factories) may implement
  * this interface.
  *
- * <p>If this is a {@link HierarchicalBeanFactory}, the return values will <i>not</i>
+ * <p>If this is a {@link org.springframework.beans.factory.HierarchicalBeanFactory}, the return values will <i>not</i>
  * take any BeanFactory hierarchy into account, but will relate only to the beans
- * defined in the current factory. Use the {@link BeanFactoryUtils} helper class
+ * defined in the current factory. Use the {@link org.springframework.beans.factory.BeanFactoryUtils} helper class
  * to consider beans in ancestor factories too.
  *
  * <p>The methods in this interface will just respect bean definitions of this factory.
@@ -51,19 +51,26 @@ import org.springframework.lang.Nullable;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @see org.springframework.beans.factory.HierarchicalBeanFactory
+ * @see org.springframework.beans.factory.BeanFactoryUtils
  * @since 16 April 2001
- * @see HierarchicalBeanFactory
- * @see BeanFactoryUtils
+ */
+
+/**
+ * 根据各种条件获取bean的配置清单
+ *
+ * @author yangwenxin
+ * @date 2023-07-04 14:46
  */
 public interface ListableBeanFactory extends BeanFactory {
 
-	/**
-	 * Check if this bean factory contains a bean definition with the given name.
-	 * <p>Does not consider any hierarchy this factory may participate in,
-	 * and ignores any singleton beans that have been registered by
-	 * other means than bean definitions.
-	 * @param beanName the name of the bean to look for
-	 * @return if this bean factory contains a bean definition with the given name
+    /**
+     * Check if this bean factory contains a bean definition with the given name.
+     * <p>Does not consider any hierarchy this factory may participate in,
+     * and ignores any singleton beans that have been registered by
+     * other means than bean definitions.
+     * @param beanName the name of the bean to look for
+     * @return if this bean factory contains a bean definition with the given name
 	 * @see #containsBean
 	 */
 	boolean containsBeanDefinition(String beanName);

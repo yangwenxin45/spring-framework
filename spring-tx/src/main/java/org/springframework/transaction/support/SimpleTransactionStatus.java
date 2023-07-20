@@ -32,6 +32,7 @@ package org.springframework.transaction.support;
  * @since 1.2.3
  * @see TransactionCallback#doInTransaction
  */
+// SimpleTransactionStatus在Spring框架内部的实现中没有使用到，目前来看，主要用于测试目的
 public class SimpleTransactionStatus extends AbstractTransactionStatus {
 
 	private final boolean newTransaction;

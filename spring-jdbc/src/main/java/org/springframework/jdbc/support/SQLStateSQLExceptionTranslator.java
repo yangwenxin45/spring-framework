@@ -16,18 +16,13 @@
 
 package org.springframework.jdbc.support;
 
+import org.springframework.dao.*;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.lang.Nullable;
+
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.springframework.dao.ConcurrencyFailureException;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.QueryTimeoutException;
-import org.springframework.dao.TransientDataAccessResourceException;
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.lang.Nullable;
 
 /**
  * {@link SQLExceptionTranslator} implementation that analyzes the SQL state in
@@ -44,6 +39,7 @@ import org.springframework.lang.Nullable;
  * @see java.sql.SQLException#getSQLState()
  * @see SQLErrorCodeSQLExceptionTranslator
  */
+// 根据SQLException.getSQLState()所返回的信息进行异常转译
 public class SQLStateSQLExceptionTranslator extends AbstractFallbackSQLExceptionTranslator {
 
 	private static final Set<String> BAD_SQL_GRAMMAR_CODES = new HashSet<>(8);

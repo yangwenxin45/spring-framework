@@ -16,11 +16,11 @@
 
 package org.springframework.jdbc.core;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.lang.Nullable;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Generic callback interface for code that operates on a JDBC Connection.
@@ -38,6 +38,7 @@ import org.springframework.lang.Nullable;
  * @see JdbcTemplate#query
  * @see JdbcTemplate#update
  */
+// 面向Connection的模板方法，属于这一组的模板方法通过org.springframework.jdbc.core.ConnectionCallback回调接口所公开的java.sql.Connection进行数据访问
 @FunctionalInterface
 public interface ConnectionCallback<T> {
 

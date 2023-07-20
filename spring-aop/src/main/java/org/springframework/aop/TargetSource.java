@@ -41,6 +41,7 @@ public interface TargetSource extends TargetClassAware {
 	 * might just work with a predetermined target class.
 	 * @return the type of targets returned by this {@link TargetSource}
 	 */
+	// 返回目标对象类型
 	@Override
 	@Nullable
 	Class<?> getTargetClass();
@@ -52,6 +53,7 @@ public interface TargetSource extends TargetClassAware {
 	 * @return {@code true} if the target is immutable
 	 * @see #getTarget
 	 */
+    // 用于表明是否要返回同一个目标对象实例
 	boolean isStatic();
 
 	/**
@@ -61,15 +63,19 @@ public interface TargetSource extends TargetClassAware {
 	 * or {@code null} if there is no actual target instance
 	 * @throws Exception if the target object can't be resolved
 	 */
+    // 要返回哪个目标对象实例
 	@Nullable
 	Object getTarget() throws Exception;
 
-	/**
-	 * Release the given target object obtained from the
-	 * {@link #getTarget()} method, if any.
-	 * @param target object obtained from a call to {@link #getTarget()}
-	 * @throws Exception if the object can't be released
-	 */
-	void releaseTarget(Object target) throws Exception;
+    /**
+     * Release the given target object obtained from the
+     * {@link #getTarget()} method, if any.
+     *
+     * @param target object obtained from a call to {@link #getTarget()}
+     * @throws Exception if the object can't be released
+     */
+    // 具体调用过程的结束，如果isStatic()为false，则会调用releaseTarget()以释放当前调用的目标对象
+    // 但是否需要释放，完全是由实现的需要决定的，大部分时候，该方法可以空着不实现
+    void releaseTarget(Object target) throws Exception;
 
 }

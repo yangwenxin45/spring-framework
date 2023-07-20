@@ -16,13 +16,13 @@
 
 package org.springframework.jdbc.object;
 
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.lang.Nullable;
+
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.lang.Nullable;
 
 /**
  * Reusable RDBMS query in which concrete subclasses must implement
@@ -35,6 +35,7 @@ import org.springframework.lang.Nullable;
  * @author Thomas Risberg
  * @see org.springframework.jdbc.object.SqlQuery
  */
+// UpdatableSqlQuery主要对应可更新结果集的查询，通过它，我们可以对查询后的结果进行更新操作
 public abstract class UpdatableSqlQuery<T> extends SqlQuery<T> {
 
 	/**

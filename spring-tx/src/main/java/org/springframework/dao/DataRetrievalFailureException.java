@@ -26,6 +26,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 13.10.2003
  */
+// 在要获取预期的数据却失败的时候，会抛出DataRetrievalFailureException
 @SuppressWarnings("serial")
 public class DataRetrievalFailureException extends NonTransientDataAccessException {
 

@@ -30,24 +30,28 @@ package org.springframework.aop;
  * @see org.springframework.aop.support.ClassFilters
  * @see org.springframework.aop.support.MethodMatchers
  */
+// 其AOP框架中所有Pointcut的最顶层抽象
 public interface Pointcut {
 
 	/**
 	 * Return the ClassFilter for this pointcut.
 	 * @return the ClassFilter (never {@code null})
 	 */
+    // 类型匹配
 	ClassFilter getClassFilter();
 
 	/**
 	 * Return the MethodMatcher for this pointcut.
 	 * @return the MethodMatcher (never {@code null})
 	 */
+    // 方法匹配
 	MethodMatcher getMethodMatcher();
 
 
 	/**
 	 * Canonical Pointcut instance that always matches.
 	 */
+    // 默认会对系统中的所有对象，以及对象上所有被支持的Joinpoint进行匹配
 	Pointcut TRUE = TruePointcut.INSTANCE;
 
 }

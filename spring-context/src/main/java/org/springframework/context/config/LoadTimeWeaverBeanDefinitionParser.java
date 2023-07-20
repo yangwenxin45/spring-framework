@@ -16,8 +16,6 @@
 
 package org.springframework.context.config;
 
-import org.w3c.dom.Element;
-
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -29,6 +27,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.weaving.AspectJWeavingEnabler;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
+import org.w3c.dom.Element;
 
 /**
  * Parser for the &lt;context:load-time-weaver/&gt; element.
@@ -76,29 +75,34 @@ class LoadTimeWeaverBeanDefinitionParser extends AbstractSingleBeanDefinitionPar
 		if (isAspectJWeavingEnabled(element.getAttribute(ASPECTJ_WEAVING_ATTRIBUTE), parserContext)) {
 			if (!parserContext.getRegistry().containsBeanDefinition(ASPECTJ_WEAVING_ENABLER_BEAN_NAME)) {
 				RootBeanDefinition def = new RootBeanDefinition(ASPECTJ_WEAVING_ENABLER_CLASS_NAME);
-				parserContext.registerBeanComponent(
-						new BeanComponentDefinition(def, ASPECTJ_WEAVING_ENABLER_BEAN_NAME));
-			}
+                parserContext.registerBeanComponent(
+                        new BeanComponentDefinition(def, ASPECTJ_WEAVING_ENABLER_BEAN_NAME));
+            }
 
-			if (isBeanConfigurerAspectEnabled(parserContext.getReaderContext().getBeanClassLoader())) {
-				new SpringConfiguredBeanDefinitionParser().parse(element, parserContext);
-			}
-		}
-	}
+            if (isBeanConfigurerAspectEnabled(parserContext.getReaderContext().getBeanClassLoader())) {
+                new SpringConfiguredBeanDefinitionParser().parse(element, parserContext);
+            }
+        }
+    }
 
-	protected boolean isAspectJWeavingEnabled(String value, ParserContext parserContext) {
-		if ("on".equals(value)) {
-			return true;
-		}
-		else if ("off".equals(value)) {
-			return false;
-		}
-		else {
-			// Determine default...
-			ClassLoader cl = parserContext.getReaderContext().getBeanClassLoader();
-			return (cl != null && cl.getResource(AspectJWeavingEnabler.ASPECTJ_AOP_XML_RESOURCE) != null);
-		}
-	}
+    /**
+     * 是否开启AspectJ
+     *
+     * @author yangwenxin
+     * @date 2023-07-14 15:46
+     */
+    protected boolean isAspectJWeavingEnabled(String value, ParserContext parserContext) {
+        if ("on".equals(value)) {
+            return true;
+        } else if ("off".equals(value)) {
+            return false;
+        } else {
+            // Determine default...
+            // 自动检测
+            ClassLoader cl = parserContext.getReaderContext().getBeanClassLoader();
+            return (cl != null && cl.getResource(AspectJWeavingEnabler.ASPECTJ_AOP_XML_RESOURCE) != null);
+        }
+    }
 
 	protected boolean isBeanConfigurerAspectEnabled(@Nullable ClassLoader beanClassLoader) {
 		return ClassUtils.isPresent(SpringConfiguredBeanDefinitionParser.BEAN_CONFIGURER_ASPECT_CLASS_NAME,

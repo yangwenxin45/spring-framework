@@ -25,18 +25,20 @@ import org.springframework.beans.factory.Aware;
  *
  * @author Juergen Hoeller
  * @author Chris Beams
- * @since 1.1.1
  * @see ApplicationContextAware
+ * @since 1.1.1
  */
+// 在ApplicationContext类型的容器启动时，会自动识别该类型的bean定义并将ApplicationContext容器本身作为ApplicationEventPublisher注入当前对象
+// ApplicationContext本身就是一个ApplicationEventPublisher
 public interface ApplicationEventPublisherAware extends Aware {
 
-	/**
-	 * Set the ApplicationEventPublisher that this object runs in.
-	 * <p>Invoked after population of normal bean properties but before an init
-	 * callback like InitializingBean's afterPropertiesSet or a custom init-method.
-	 * Invoked before ApplicationContextAware's setApplicationContext.
-	 * @param applicationEventPublisher event publisher to be used by this object
-	 */
-	void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher);
+    /**
+     * Set the ApplicationEventPublisher that this object runs in.
+     * <p>Invoked after population of normal bean properties but before an init
+     * callback like InitializingBean's afterPropertiesSet or a custom init-method.
+     * Invoked before ApplicationContextAware's setApplicationContext.
+     * @param applicationEventPublisher event publisher to be used by this object
+     */
+    void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher);
 
 }

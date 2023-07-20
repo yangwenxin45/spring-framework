@@ -16,10 +16,10 @@
 
 package org.springframework.core.io.support;
 
-import java.io.IOException;
-
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+
+import java.io.IOException;
 
 /**
  * Strategy interface for resolving a location pattern (for example,
@@ -51,6 +51,7 @@ import org.springframework.core.io.ResourceLoader;
  * @see org.springframework.context.ApplicationContext
  * @see org.springframework.context.ResourceLoaderAware
  */
+// ResourcePatternResolver可以根据指定的资源路径匹配模式，每次返回多个Resource实例
 public interface ResourcePatternResolver extends ResourceLoader {
 
 	/**

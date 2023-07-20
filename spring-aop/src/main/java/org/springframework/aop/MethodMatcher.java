@@ -16,9 +16,9 @@
 
 package org.springframework.aop;
 
-import java.lang.reflect.Method;
-
 import org.springframework.lang.Nullable;
+
+import java.lang.reflect.Method;
 
 /**
  * Part of a {@link Pointcut}: Checks whether the target method is eligible for advice.
@@ -72,6 +72,7 @@ public interface MethodMatcher {
 	 * {@link #matches(java.lang.reflect.Method, Class, Object[])} method
 	 * is required if static matching passed
 	 */
+    // 表示是否会考虑Joinpoint的方法参数
 	boolean isRuntime();
 
 	/**

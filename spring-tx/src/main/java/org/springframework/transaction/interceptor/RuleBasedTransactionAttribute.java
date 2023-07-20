@@ -16,15 +16,14 @@
 
 package org.springframework.transaction.interceptor;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.lang.Nullable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.lang.Nullable;
 
 /**
  * TransactionAttribute implementation that works out whether a given exception
@@ -32,21 +31,26 @@ import org.springframework.lang.Nullable;
  * both positive and negative. If no rules are relevant to the exception, it
  * behaves like DefaultTransactionAttribute (rolling back on runtime exceptions).
  *
- * <p>{@link TransactionAttributeEditor} creates objects of this class.
+ * <p>{@link org.springframework.transaction.interceptor.TransactionAttributeEditor} creates objects of this class.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @see org.springframework.transaction.interceptor.TransactionAttributeEditor
  * @since 09.04.2003
- * @see TransactionAttributeEditor
+ */
+
+/**
+ * RuleBasedTransactionAttribute允许我们同时指定多个回滚规则，这些规则以包含RollbackRuleAttribute或者NoRollbackRuleAttribute的List形式提供
+ * RuleBasedTransactionAttribute的rollbackOn将使用传入的异常类型与这些回滚规则进行匹配，然后再决定是否要回滚事务
  */
 @SuppressWarnings("serial")
 public class RuleBasedTransactionAttribute extends DefaultTransactionAttribute implements Serializable {
 
-	/** Prefix for rollback-on-exception rules in description strings */
-	public static final String PREFIX_ROLLBACK_RULE = "-";
+    /** Prefix for rollback-on-exception rules in description strings */
+    public static final String PREFIX_ROLLBACK_RULE = "-";
 
-	/** Prefix for commit-on-exception rules in description strings */
-	public static final String PREFIX_COMMIT_RULE = "+";
+    /** Prefix for commit-on-exception rules in description strings */
+    public static final String PREFIX_COMMIT_RULE = "+";
 
 
 	/** Static for optimal serializability */

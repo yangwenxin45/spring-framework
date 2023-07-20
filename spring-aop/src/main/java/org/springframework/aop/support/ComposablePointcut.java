@@ -16,12 +16,12 @@
 
 package org.springframework.aop.support;
 
-import java.io.Serializable;
-
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 /**
  * Convenient class for building up pointcuts.
@@ -40,6 +40,7 @@ import org.springframework.util.Assert;
  * @since 11.11.2003
  * @see Pointcuts
  */
+// SpringAOP提供的可以进行Pointcut逻辑运算的Pointcut实现，它可以进行Pointcut之间的"并"以及"交"运算
 public class ComposablePointcut implements Pointcut, Serializable {
 
 	/** use serialVersionUID from Spring 1.2 for interoperability */

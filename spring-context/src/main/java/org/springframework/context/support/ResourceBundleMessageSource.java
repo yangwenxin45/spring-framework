@@ -16,6 +16,11 @@
 
 package org.springframework.context.support;
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,18 +31,8 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
  * {@link org.springframework.context.MessageSource} implementation that
@@ -65,16 +60,18 @@ import org.springframework.util.ClassUtils;
  * @see java.util.ResourceBundle
  * @see java.text.MessageFormat
  */
+// 基于标准的java.util.ResourceBundle而实现的MessageSource，对其父类AbstractMessageSource的行为进行了扩展，提供对多个ResourceBundle的缓存以提高查询速度
+// 同时，对于参数化的信息和非参数化的信息进行了优化，并对用于参数化信息格式化的MessageFormat实例也进行了缓存。是最常用的，用于生产环境下的MessageSource实现
 public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSource implements BeanClassLoaderAware {
 
-	@Nullable
-	private ClassLoader bundleClassLoader;
+    @Nullable
+    private ClassLoader bundleClassLoader;
 
-	@Nullable
-	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+    @Nullable
+    private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-	/**
-	 * Cache to hold loaded ResourceBundles.
+    /**
+     * Cache to hold loaded ResourceBundles.
 	 * This Map is keyed with the bundle basename, which holds a Map that is
 	 * keyed with the Locale and in turn holds the ResourceBundle instances.
 	 * This allows for very efficient hash lookups, significantly faster

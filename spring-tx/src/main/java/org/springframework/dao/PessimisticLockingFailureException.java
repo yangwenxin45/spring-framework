@@ -30,6 +30,7 @@ package org.springframework.dao;
  * @see DeadlockLoserDataAccessException
  * @see OptimisticLockingFailureException
  */
+// 对应数据库更新时候出现悲观锁冲突的情况
 @SuppressWarnings("serial")
 public class PessimisticLockingFailureException extends ConcurrencyFailureException {
 

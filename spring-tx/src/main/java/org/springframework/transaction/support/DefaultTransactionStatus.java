@@ -48,6 +48,7 @@ import org.springframework.util.Assert;
  * @see #releaseSavepoint
  * @see SimpleTransactionStatus
  */
+// DefaultTransactionStatus是Spring事务框架内部使用的主要TransactionStatus实现类
 public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
 	@Nullable

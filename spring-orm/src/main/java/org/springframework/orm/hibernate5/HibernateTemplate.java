@@ -16,6 +16,20 @@
 
 package org.springframework.orm.hibernate5;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.*;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Example;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.lang.Nullable;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
+
+import javax.persistence.PersistenceException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -24,30 +38,6 @@ import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import javax.persistence.PersistenceException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Criteria;
-import org.hibernate.Filter;
-import org.hibernate.FlushMode;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.LockOptions;
-import org.hibernate.ReplicationMode;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Example;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.lang.Nullable;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Helper class that simplifies Hibernate data access code. Automatically
@@ -86,16 +76,18 @@ import org.springframework.util.ReflectionUtils;
  * @see org.springframework.orm.hibernate5.support.OpenSessionInViewFilter
  * @see org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor
  */
+// HibernateTemplate统一对Session的获取以及释放等管理逻辑进行封装，将Session管理尽量保持在一处进行
+// 而对于不同的数据访问需求，HibernateTemplate提供了HibernateCallback回调接口，以便调用方可以根据各自的数据访问需求进行定制
 public class HibernateTemplate implements HibernateOperations, InitializingBean {
 
-	private static final Method createQueryMethod;
+    private static final Method createQueryMethod;
 
-	private static final Method getNamedQueryMethod;
+    private static final Method getNamedQueryMethod;
 
-	static {
-		// Hibernate 5.2's createQuery method declares a new subtype as return type,
-		// so we need to use reflection for binary compatibility with 5.0/5.1 here.
-		try {
+    static {
+        // Hibernate 5.2's createQuery method declares a new subtype as return type,
+        // so we need to use reflection for binary compatibility with 5.0/5.1 here.
+        try {
 			createQueryMethod = Session.class.getMethod("createQuery", String.class);
 			getNamedQueryMethod = Session.class.getMethod("getNamedQuery", String.class);
 		}

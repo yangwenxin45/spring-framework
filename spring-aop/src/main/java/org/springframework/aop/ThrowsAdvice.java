@@ -48,6 +48,7 @@ package org.springframework.aop;
  * @see AfterReturningAdvice
  * @see MethodBeforeAdvice
  */
+// ThrowsAdvice通常用于对系统中特定的异常情况进行监控，以统一的方式对所发生的的异常进行处理
 public interface ThrowsAdvice extends AfterAdvice {
 
 }

@@ -25,6 +25,7 @@ import org.springframework.dao.NonTransientDataAccessException;
  * @author Juergen Hoeller
  * @since 2.0
  */
+// 当尝试对JNDI（Java命令和目录接口）服务上或者其他位置上的DataSource进行查找，而查找失败的时候，会抛出DataSourceLookupFailureException
 @SuppressWarnings("serial")
 public class DataSourceLookupFailureException extends NonTransientDataAccessException {
 

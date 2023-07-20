@@ -16,11 +16,10 @@
 
 package org.springframework.core.io;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -29,9 +28,6 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.StandardOpenOption;
-
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 /**
  * {@link Resource} implementation for {@code java.io.File} handles.
@@ -48,16 +44,18 @@ import org.springframework.util.StringUtils;
  * @see java.io.File
  * @see java.nio.file.Files
  */
+// 对java.io.File类型的封装，所以我们可以以文件或者URL的形式对该类型资源进行访问
+// 只要能根File打的交道，基本上跟FileSystemResource也可以
 public class FileSystemResource extends AbstractResource implements WritableResource {
 
-	private final File file;
+    private final File file;
 
-	private final String path;
+    private final String path;
 
 
-	/**
-	 * Create a new {@code FileSystemResource} from a {@link File} handle.
-	 * <p>Note: When building relative resources via {@link #createRelative},
+    /**
+     * Create a new {@code FileSystemResource} from a {@link File} handle.
+     * <p>Note: When building relative resources via {@link #createRelative},
 	 * the relative path will apply <i>at the same directory level</i>:
 	 * e.g. new File("C:/dir1"), relative path "dir2" -> "C:/dir2"!
 	 * If you prefer to have relative paths built underneath the given root

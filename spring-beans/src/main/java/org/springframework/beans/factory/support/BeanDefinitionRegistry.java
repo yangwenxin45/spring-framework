@@ -37,72 +37,87 @@ import org.springframework.core.AliasRegistry;
  * @author Juergen Hoeller
  * @since 26.11.2003
  * @see org.springframework.beans.factory.config.BeanDefinition
- * @see AbstractBeanDefinition
- * @see RootBeanDefinition
- * @see ChildBeanDefinition
- * @see DefaultListableBeanFactory
+ * @see org.springframework.beans.factory.support.AbstractBeanDefinition
+ * @see org.springframework.beans.factory.support.RootBeanDefinition
+ * @see org.springframework.beans.factory.support.ChildBeanDefinition
+ * @see org.springframework.beans.factory.support.DefaultListableBeanFactory
  * @see org.springframework.context.support.GenericApplicationContext
  * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
- * @see PropertiesBeanDefinitionReader
+ * @see org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
+ */
+
+/**
+ * 定义对BeanDefinition的各种增删改查操作
+ *
+ * @author yangwenxin
+ * @date 2023-07-04 14:44
+ */
+
+/**
+ * Spring通过BeanDefinition将配置文件中的<bean>配置信息转换为容器的内部表示，并将这些BeanDefinition注册到BeanDefinitionRegistry中
+ * Spring容器的BeanDefinitionRegistry就像是Spring配置信息的内存数据库，主要是以map的形式保存，后续操作直接从BeanDefinitionRegistry中读取配置信息
+ *
+ * @author yangwenxin
+ * @date 2023-07-06 09:30
  */
 public interface BeanDefinitionRegistry extends AliasRegistry {
 
-	/**
-	 * Register a new bean definition with this registry.
-	 * Must support RootBeanDefinition and ChildBeanDefinition.
-	 * @param beanName the name of the bean instance to register
-	 * @param beanDefinition definition of the bean instance to register
-	 * @throws BeanDefinitionStoreException if the BeanDefinition is invalid
-	 * or if there is already a BeanDefinition for the specified bean name
-	 * (and we are not allowed to override it)
-	 * @see GenericBeanDefinition
-	 * @see RootBeanDefinition
-	 * @see ChildBeanDefinition
-	 */
-	void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
-			throws BeanDefinitionStoreException;
+    /**
+     * Register a new bean definition with this registry.
+     * Must support RootBeanDefinition and ChildBeanDefinition.
+     * @param beanName the name of the bean instance to register
+     * @param beanDefinition definition of the bean instance to register
+     * @throws BeanDefinitionStoreException if the BeanDefinition is invalid
+     * or if there is already a BeanDefinition for the specified bean name
+     * (and we are not allowed to override it)
+     * @see GenericBeanDefinition
+     * @see RootBeanDefinition
+     * @see ChildBeanDefinition
+     */
+    void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+            throws BeanDefinitionStoreException;
 
-	/**
-	 * Remove the BeanDefinition for the given name.
-	 * @param beanName the name of the bean instance to register
-	 * @throws NoSuchBeanDefinitionException if there is no such bean definition
-	 */
-	void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
+    /**
+     * Remove the BeanDefinition for the given name.
+     * @param beanName the name of the bean instance to register
+     * @throws NoSuchBeanDefinitionException if there is no such bean definition
+     */
+    void removeBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
-	/**
-	 * Return the BeanDefinition for the given bean name.
-	 * @param beanName name of the bean to find a definition for
-	 * @return the BeanDefinition for the given name (never {@code null})
-	 * @throws NoSuchBeanDefinitionException if there is no such bean definition
-	 */
-	BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
+    /**
+     * Return the BeanDefinition for the given bean name.
+     * @param beanName name of the bean to find a definition for
+     * @return the BeanDefinition for the given name (never {@code null})
+     * @throws NoSuchBeanDefinitionException if there is no such bean definition
+     */
+    BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
-	/**
-	 * Check if this registry contains a bean definition with the given name.
-	 * @param beanName the name of the bean to look for
-	 * @return if this registry contains a bean definition with the given name
-	 */
-	boolean containsBeanDefinition(String beanName);
+    /**
+     * Check if this registry contains a bean definition with the given name.
+     * @param beanName the name of the bean to look for
+     * @return if this registry contains a bean definition with the given name
+     */
+    boolean containsBeanDefinition(String beanName);
 
-	/**
-	 * Return the names of all beans defined in this registry.
-	 * @return the names of all beans defined in this registry,
-	 * or an empty array if none defined
-	 */
-	String[] getBeanDefinitionNames();
+    /**
+     * Return the names of all beans defined in this registry.
+     * @return the names of all beans defined in this registry,
+     * or an empty array if none defined
+     */
+    String[] getBeanDefinitionNames();
 
-	/**
-	 * Return the number of beans defined in the registry.
-	 * @return the number of beans defined in the registry
-	 */
-	int getBeanDefinitionCount();
+    /**
+     * Return the number of beans defined in the registry.
+     * @return the number of beans defined in the registry
+     */
+    int getBeanDefinitionCount();
 
-	/**
-	 * Determine whether the given bean name is already in use within this registry,
-	 * i.e. whether there is a local bean or alias registered under this name.
-	 * @param beanName the name to check
-	 * @return whether the given bean name is already in use
-	 */
-	boolean isBeanNameInUse(String beanName);
+    /**
+     * Determine whether the given bean name is already in use within this registry,
+     * i.e. whether there is a local bean or alias registered under this name.
+     * @param beanName the name to check
+     * @return whether the given bean name is already in use
+     */
+    boolean isBeanNameInUse(String beanName);
 
 }

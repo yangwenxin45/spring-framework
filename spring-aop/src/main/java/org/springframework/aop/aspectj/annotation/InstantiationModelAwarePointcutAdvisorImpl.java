@@ -16,14 +16,8 @@
 
 package org.springframework.aop.aspectj.annotation;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-
 import org.aopalliance.aop.Advice;
 import org.aspectj.lang.reflect.PerClauseKind;
-
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.aspectj.AspectJPrecedenceInformation;
@@ -32,6 +26,11 @@ import org.springframework.aop.aspectj.annotation.AbstractAspectJAdvisorFactory.
 import org.springframework.aop.support.DynamicMethodMatcherPointcut;
 import org.springframework.aop.support.Pointcuts;
 import org.springframework.lang.Nullable;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
  * Internal implementation of AspectJPointcutAdvisor.
@@ -135,26 +134,32 @@ class InstantiationModelAwarePointcutAdvisorImpl
 	}
 
 	/**
-	 * Lazily instantiate advice if necessary.
-	 */
-	@Override
-	public synchronized Advice getAdvice() {
-		if (this.instantiatedAdvice == null) {
-			this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
-		}
-		return this.instantiatedAdvice;
-	}
+     * Lazily instantiate advice if necessary.
+     */
+    @Override
+    public synchronized Advice getAdvice() {
+        if (this.instantiatedAdvice == null) {
+            this.instantiatedAdvice = instantiateAdvice(this.declaredPointcut);
+        }
+        return this.instantiatedAdvice;
+    }
 
-	private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
-		Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
-				this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
-		return (advice != null ? advice : EMPTY_ADVICE);
-	}
+    /**
+     * 根据注解中的信息初始化对应的增强器
+     *
+     * @author yangwenxin
+     * @date 2023-07-14 11:32
+     */
+    private Advice instantiateAdvice(AspectJExpressionPointcut pointcut) {
+        Advice advice = this.aspectJAdvisorFactory.getAdvice(this.aspectJAdviceMethod, pointcut,
+                this.aspectInstanceFactory, this.declarationOrder, this.aspectName);
+        return (advice != null ? advice : EMPTY_ADVICE);
+    }
 
-	/**
-	 * This is only of interest for Spring AOP: AspectJ instantiation semantics
-	 * are much richer. In AspectJ terminology, all a return of {@code true}
-	 * means here is that the aspect is not a SINGLETON.
+    /**
+     * This is only of interest for Spring AOP: AspectJ instantiation semantics
+     * are much richer. In AspectJ terminology, all a return of {@code true}
+     * means here is that the aspect is not a SINGLETON.
 	 */
 	@Override
 	public boolean isPerInstance() {

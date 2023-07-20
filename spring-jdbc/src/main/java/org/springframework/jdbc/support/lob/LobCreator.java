@@ -16,13 +16,13 @@
 
 package org.springframework.jdbc.support.lob;
 
+import org.springframework.lang.Nullable;
+
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Interface that abstracts potentially database-specific creation of large binary
@@ -58,6 +58,7 @@ import org.springframework.lang.Nullable;
  * @see java.sql.PreparedStatement#setAsciiStream
  * @see java.sql.PreparedStatement#setCharacterStream
  */
+// LobCreator的职责主要在于LOB数据的创建，它让我们能够以统一的方式创建LOB数据，我们将在插入或者更新LOB数据的时候使用它
 public interface LobCreator extends Closeable {
 
 	/**

@@ -16,13 +16,13 @@
 
 package org.springframework.web.servlet.view;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.RequestToViewNameTranslator;
 import org.springframework.web.util.UrlPathHelper;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * {@link RequestToViewNameTranslator} that simply transforms the URI of
@@ -59,19 +59,26 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
 	private static final String SLASH = "/";
 
 
-	private String prefix = "";
+    // 前缀，表示约定好视图名称需要加上的前缀
+    private String prefix = "";
 
-	private String suffix = "";
+    // 后缀，表示约定好的视图名称需要加上的后缀
+    private String suffix = "";
 
-	private String separator = SLASH;
+    // 分隔符，默认是斜杠"/"
+    private String separator = SLASH;
 
-	private boolean stripLeadingSlash = true;
+    // 如果首字符是分隔符，是否要去除
+    private boolean stripLeadingSlash = true;
 
-	private boolean stripTrailingSlash = true;
+    // 如果最后一个字符是分隔符，是否要去除
+    private boolean stripTrailingSlash = true;
 
-	private boolean stripExtension = true;
+    // 如果请求路径包含扩展名是否要去除
+    private boolean stripExtension = true;
 
-	private UrlPathHelper urlPathHelper = new UrlPathHelper();
+    // 是否需要对URL解码，默认是true，它会采用request指定的编码或者ISO-8859-1编码对URL进行解码
+    private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
 
 	/**

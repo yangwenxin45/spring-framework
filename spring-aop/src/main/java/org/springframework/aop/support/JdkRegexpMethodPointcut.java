@@ -37,6 +37,7 @@ import java.util.regex.PatternSyntaxException;
  * @author Rob Harrop
  * @since 1.1
  */
+// 使用正则表达式来匹配相应的Joinpoint所处的方法时，正则表达式的匹配模式必须以匹配整个方法签名的形式指定
 @SuppressWarnings("serial")
 public class JdkRegexpMethodPointcut extends AbstractRegexpMethodPointcut {
 

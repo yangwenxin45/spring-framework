@@ -18,7 +18,6 @@ package org.springframework.orm.hibernate5.support;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.dao.support.DaoSupport;
 import org.springframework.lang.Nullable;
@@ -53,6 +52,7 @@ import org.springframework.util.Assert;
  * @see #getHibernateTemplate
  * @see org.springframework.orm.hibernate5.HibernateTemplate
  */
+// HibernateDaoSupport的出现让我们免于重新去发明这种基于HibernateTemplate的DAO基类的轮子
 public abstract class HibernateDaoSupport extends DaoSupport {
 
 	@Nullable

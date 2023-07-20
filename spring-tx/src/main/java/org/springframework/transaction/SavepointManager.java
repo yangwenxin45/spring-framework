@@ -34,6 +34,7 @@ package org.springframework.transaction;
  * @see TransactionDefinition#PROPAGATION_NESTED
  * @see java.sql.Savepoint
  */
+// SavepointManager是在JDBC 3.0的基础上，对Savepoint的支持提供的抽象
 public interface SavepointManager {
 
 	/**

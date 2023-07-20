@@ -25,6 +25,7 @@ package org.springframework.dao;
  *
  * @author Rod Johnson
  */
+// 以错误的方式，使用了特定的数据访问API
 @SuppressWarnings("serial")
 public class InvalidDataAccessApiUsageException extends NonTransientDataAccessException {
 

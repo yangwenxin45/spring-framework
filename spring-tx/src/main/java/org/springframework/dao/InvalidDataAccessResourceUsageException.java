@@ -23,6 +23,7 @@ package org.springframework.dao;
  *
  * @author Rod Johnson
  */
+// 以错误的方式访问数据资源，就会抛出InvalidDataAccessResourceUsageException
 @SuppressWarnings("serial")
 public class InvalidDataAccessResourceUsageException extends NonTransientDataAccessException {
 

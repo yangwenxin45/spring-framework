@@ -28,6 +28,7 @@ import org.springframework.lang.Nullable;
  * @author Rod Johnson
  * @see PessimisticLockingFailureException
  */
+// 对应数据库更新时候出现乐观锁冲突的情况
 @SuppressWarnings("serial")
 public class OptimisticLockingFailureException extends ConcurrencyFailureException {
 

@@ -22,7 +22,6 @@ import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -63,16 +62,18 @@ import org.springframework.util.Assert;
  * @see #setTimeBetweenEvictionRunsMillis
  * @see #setMinEvictableIdleTimeMillis
  */
+// 提供一个目标对象的对象池，然后让某个TargetSource实现每次都从这个目标对象池中去取得目标对象
+// 注意要使用prototype型scope的bean定义
 @SuppressWarnings({"rawtypes", "unchecked", "serial"})
 public class CommonsPool2TargetSource extends AbstractPoolingTargetSource implements PooledObjectFactory<Object> {
 
-	private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
+    private int maxIdle = GenericObjectPoolConfig.DEFAULT_MAX_IDLE;
 
-	private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
+    private int minIdle = GenericObjectPoolConfig.DEFAULT_MIN_IDLE;
 
-	private long maxWait = GenericObjectPoolConfig.DEFAULT_MAX_WAIT_MILLIS;
+    private long maxWait = GenericObjectPoolConfig.DEFAULT_MAX_WAIT_MILLIS;
 
-	private long timeBetweenEvictionRunsMillis = GenericObjectPoolConfig.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS;
+    private long timeBetweenEvictionRunsMillis = GenericObjectPoolConfig.DEFAULT_TIME_BETWEEN_EVICTION_RUNS_MILLIS;
 
 	private long minEvictableIdleTimeMillis = GenericObjectPoolConfig.DEFAULT_MIN_EVICTABLE_IDLE_TIME_MILLIS;
 

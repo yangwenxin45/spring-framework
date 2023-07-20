@@ -16,13 +16,13 @@
 
 package org.springframework.aop.support.annotation;
 
-import java.lang.annotation.Annotation;
-
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.lang.annotation.Annotation;
 
 /**
  * Simple Pointcut that looks for a specific Java 5 annotation
@@ -30,10 +30,11 @@ import org.springframework.util.Assert;
  * {@link #forMethodAnnotation method}.
  *
  * @author Juergen Hoeller
+ * @see org.springframework.aop.support.annotation.AnnotationClassFilter
+ * @see org.springframework.aop.support.annotation.AnnotationMethodMatcher
  * @since 2.0
- * @see AnnotationClassFilter
- * @see AnnotationMethodMatcher
  */
+// 根据目标对象中是否存在指定类型的注解来匹配Joinpoint
 public class AnnotationMatchingPointcut implements Pointcut {
 
 	private final ClassFilter classFilter;

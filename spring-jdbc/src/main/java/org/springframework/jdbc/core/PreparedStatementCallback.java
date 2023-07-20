@@ -16,11 +16,11 @@
 
 package org.springframework.jdbc.core;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.lang.Nullable;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * Generic callback interface for code that operates on a PreparedStatement.
@@ -41,16 +41,18 @@ import org.springframework.lang.Nullable;
  * @see JdbcTemplate#execute(String, PreparedStatementCallback)
  * @see JdbcTemplate#execute(PreparedStatementCreator, PreparedStatementCallback)
  */
+// 面向PreparedStatement的模板方法会通过org.springframework.jdbc.core.PreparedStatementCreator回调接口公开Connection以允许PreparedStatement的创建
+// PreparedStatement创建之后，会公开给org.springframework.jdbc.core.PreparedStatementCallback回调接口，以支持其使用PreparedStatement进行数据访问
 @FunctionalInterface
 public interface PreparedStatementCallback<T> {
 
-	/**
-	 * Gets called by {@code JdbcTemplate.execute} with an active JDBC
-	 * PreparedStatement. Does not need to care about closing the Statement
-	 * or the Connection, or about handling transactions: this will all be
-	 * handled by Spring's JdbcTemplate.
-	 * <p><b>NOTE:</b> Any ResultSets opened should be closed in finally blocks
-	 * within the callback implementation. Spring will close the Statement
+    /**
+     * Gets called by {@code JdbcTemplate.execute} with an active JDBC
+     * PreparedStatement. Does not need to care about closing the Statement
+     * or the Connection, or about handling transactions: this will all be
+     * handled by Spring's JdbcTemplate.
+     * <p><b>NOTE:</b> Any ResultSets opened should be closed in finally blocks
+     * within the callback implementation. Spring will close the Statement
 	 * object after the callback returned, but this does not necessarily imply
 	 * that the ResultSet resources will be closed: the Statement objects might
 	 * get pooled by the connection pool, with {@code close} calls only

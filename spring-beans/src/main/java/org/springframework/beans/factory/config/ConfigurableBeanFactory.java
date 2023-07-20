@@ -16,9 +16,6 @@
 
 package org.springframework.beans.factory.config;
 
-import java.beans.PropertyEditor;
-import java.security.AccessControlContext;
-
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.TypeConverter;
@@ -29,6 +26,9 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.lang.Nullable;
 import org.springframework.util.StringValueResolver;
+
+import java.beans.PropertyEditor;
+import java.security.AccessControlContext;
 
 /**
  * Configuration interface to be implemented by most bean factories. Provides
@@ -43,19 +43,26 @@ import org.springframework.util.StringValueResolver;
  * plug'n'play and for special access to bean factory configuration methods.
  *
  * @author Juergen Hoeller
- * @since 03.11.2003
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.ListableBeanFactory
- * @see ConfigurableListableBeanFactory
+ * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+ * @since 03.11.2003
+ */
+
+/**
+ * 提供配置Factory的各种方法
+ *
+ * @author yangwenxin
+ * @date 2023-07-04 14:46
  */
 public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, SingletonBeanRegistry {
 
-	/**
-	 * Scope identifier for the standard singleton scope: "singleton".
-	 * Custom scopes can be added via {@code registerScope}.
-	 * @see #registerScope
-	 */
-	String SCOPE_SINGLETON = "singleton";
+    /**
+     * Scope identifier for the standard singleton scope: "singleton".
+     * Custom scopes can be added via {@code registerScope}.
+     * @see #registerScope
+     */
+    String SCOPE_SINGLETON = "singleton";
 
 	/**
 	 * Scope identifier for the standard prototype scope: "prototype".

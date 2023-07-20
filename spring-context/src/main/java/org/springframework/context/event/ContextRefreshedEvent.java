@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
  * @since 04.03.2003
  * @see ContextClosedEvent
  */
+// ApplicationContext容器在初始化或者刷新的时候发布的事件类型
 @SuppressWarnings("serial")
 public class ContextRefreshedEvent extends ApplicationContextEvent {
 

@@ -28,6 +28,7 @@ import org.springframework.util.StringUtils;
  * @author Juergen Hoeller
  * @since 16.03.2003
  */
+// 在DefaultTransactionDefinition的基础上增加了rollbackOn的实现，指定了当异常类型为unchecked exception的情况下将回滚事务
 @SuppressWarnings("serial")
 public class DefaultTransactionAttribute extends DefaultTransactionDefinition implements TransactionAttribute {
 

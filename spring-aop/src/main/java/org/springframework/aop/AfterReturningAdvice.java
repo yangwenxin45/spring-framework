@@ -16,9 +16,9 @@
 
 package org.springframework.aop;
 
-import java.lang.reflect.Method;
-
 import org.springframework.lang.Nullable;
+
+import java.lang.reflect.Method;
 
 /**
  * After returning advice is invoked only on normal method return, not if an
@@ -28,16 +28,18 @@ import org.springframework.lang.Nullable;
  * @see MethodBeforeAdvice
  * @see ThrowsAdvice
  */
+// 只有在方法正常返回的情况下，AfterReturningAdvice才会执行
+// 可以访问当前Joinpoint的方法返回值、方法、方法参数以及所在的目标对象，AfterReturningAdvice不能对方法返回值进行更改
 public interface AfterReturningAdvice extends AfterAdvice {
 
-	/**
-	 * Callback after a given method successfully returned.
-	 * @param returnValue the value returned by the method, if any
-	 * @param method method being invoked
-	 * @param args arguments to the method
-	 * @param target target of the method invocation. May be {@code null}.
-	 * @throws Throwable if this object wishes to abort the call.
-	 * Any exception thrown will be returned to the caller if it's
+    /**
+     * Callback after a given method successfully returned.
+     * @param returnValue the value returned by the method, if any
+     * @param method method being invoked
+     * @param args arguments to the method
+     * @param target target of the method invocation. May be {@code null}.
+     * @throws Throwable if this object wishes to abort the call.
+     * Any exception thrown will be returned to the caller if it's
 	 * allowed by the method signature. Otherwise the exception
 	 * will be wrapped as a runtime exception.
 	 */

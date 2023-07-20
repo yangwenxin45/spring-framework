@@ -16,11 +16,11 @@
 
 package org.springframework.jdbc.core;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.lang.Nullable;
+
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Generic callback interface for code that operates on a JDBC Statement.
@@ -31,19 +31,21 @@ import org.springframework.lang.Nullable;
  * <p>Used internally by JdbcTemplate, but also useful for application code.
  *
  * @author Juergen Hoeller
- * @since 16.03.2004
  * @see JdbcTemplate#execute(StatementCallback)
+ * @since 16.03.2004
  */
+// 面向Statement的模板方法主要处理基于静态的SQL的数据访问请求
+// 该组模板方法通过org.springframework.jdbc.core.StatementCallback回调接口对外公开java.sql.Statement类型的操作句柄
 @FunctionalInterface
 public interface StatementCallback<T> {
 
-	/**
-	 * Gets called by {@code JdbcTemplate.execute} with an active JDBC
-	 * Statement. Does not need to care about closing the Statement or the
-	 * Connection, or about handling transactions: this will all be handled
-	 * by Spring's JdbcTemplate.
-	 * <p><b>NOTE:</b> Any ResultSets opened should be closed in finally blocks
-	 * within the callback implementation. Spring will close the Statement
+    /**
+     * Gets called by {@code JdbcTemplate.execute} with an active JDBC
+     * Statement. Does not need to care about closing the Statement or the
+     * Connection, or about handling transactions: this will all be handled
+     * by Spring's JdbcTemplate.
+     * <p><b>NOTE:</b> Any ResultSets opened should be closed in finally blocks
+     * within the callback implementation. Spring will close the Statement
 	 * object after the callback returned, but this does not necessarily imply
 	 * that the ResultSet resources will be closed: the Statement objects might
 	 * get pooled by the connection pool, with {@code close} calls only

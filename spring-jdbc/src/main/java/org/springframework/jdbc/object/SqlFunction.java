@@ -16,13 +16,13 @@
 
 package org.springframework.jdbc.object;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.sql.DataSource;
-
 import org.springframework.dao.TypeMismatchDataAccessException;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.lang.Nullable;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * SQL "function" wrapper for a query that returns a single row of results.
@@ -48,16 +48,18 @@ import org.springframework.lang.Nullable;
  * @author Jean-Pierre Pawlak
  * @see StoredProcedure
  */
+// SqlFunction是职责更加专一的查询操作对象，它负责的是只返回一行并且一列的查询结果的查询
+// SqlFunction本身的目的就是为了调用只返回单一查询结果的简单查询
 public class SqlFunction<T> extends MappingSqlQuery<T> {
 
-	private final SingleColumnRowMapper<T> rowMapper = new SingleColumnRowMapper<>();
+    private final SingleColumnRowMapper<T> rowMapper = new SingleColumnRowMapper<>();
 
 
-	/**
-	 * Constructor to allow use as a JavaBean.
-	 * A DataSource, SQL and any parameters must be supplied before
-	 * invoking the {@code compile} method and using this object.
-	 * @see #setDataSource
+    /**
+     * Constructor to allow use as a JavaBean.
+     * A DataSource, SQL and any parameters must be supplied before
+     * invoking the {@code compile} method and using this object.
+     * @see #setDataSource
 	 * @see #setSql
 	 * @see #compile
 	 */

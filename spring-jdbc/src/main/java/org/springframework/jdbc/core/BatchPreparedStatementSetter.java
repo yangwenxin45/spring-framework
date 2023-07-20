@@ -36,6 +36,7 @@ import java.sql.SQLException;
  * @see JdbcTemplate#batchUpdate(String, BatchPreparedStatementSetter)
  * @see InterruptibleBatchPreparedStatementSetter
  */
+// 使用BatchPreparedStatementSetter回调接口来对批量更新中每次更新所需要的参数进行设置
 public interface BatchPreparedStatementSetter {
 
 	/**
@@ -45,12 +46,14 @@ public interface BatchPreparedStatementSetter {
 	 * @throws SQLException if a SQLException is encountered
 	 * (i.e. there is no need to catch SQLException)
 	 */
+    // 设置具体的更新数据，其中第二个int型的参数对应的是每笔更新的索引
 	void setValues(PreparedStatement ps, int i) throws SQLException;
 
 	/**
 	 * Return the size of the batch.
 	 * @return the number of statements in the batch
 	 */
+    // 返回批量更新的数目
 	int getBatchSize();
 
 }

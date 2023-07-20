@@ -16,14 +16,13 @@
 
 package org.springframework.beans.factory.xml;
 
-import java.io.IOException;
-
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
+import java.io.IOException;
 
 /**
  * {@link EntityResolver} implementation that delegates to a {@link BeansDtdResolver}
@@ -84,11 +83,15 @@ public class DelegatingEntityResolver implements EntityResolver {
 
 		if (systemId != null) {
 			if (systemId.endsWith(DTD_SUFFIX)) {
-				return this.dtdResolver.resolveEntity(publicId, systemId);
-			}
+                // 如果是dtd从这里解析
+                // 加载DTD类型的BeansDtdResolver的resolveEntity是直接截取systemId最后的xx.dtd然后去当前路径下寻找
+                return this.dtdResolver.resolveEntity(publicId, systemId);
+            }
 			else if (systemId.endsWith(XSD_SUFFIX)) {
-				return this.schemaResolver.resolveEntity(publicId, systemId);
-			}
+                // 通过调用META-INF/Spring.schemas解析
+                // 加载XSD类型的PluggableSchemaResolver类的resolveEntity是默认到META-INF/Spring.schemas文件中找到systemId所对应的XSD文件并加载
+                return this.schemaResolver.resolveEntity(publicId, systemId);
+            }
 		}
 
 		// Fall back to the parser's default behavior.

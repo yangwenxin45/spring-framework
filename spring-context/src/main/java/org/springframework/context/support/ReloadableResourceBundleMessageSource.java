@@ -16,19 +16,6 @@
 
 package org.springframework.context.support;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -37,6 +24,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.DefaultPropertiesPersister;
 import org.springframework.util.PropertiesPersister;
 import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Spring-specific {@link org.springframework.context.MessageSource} implementation
@@ -85,16 +81,19 @@ import org.springframework.util.StringUtils;
  * @see ResourceBundleMessageSource
  * @see java.util.ResourceBundle
  */
+// 基于标准的java.util.ResourceBundle而实现的MessageSource实现类，但通过其cacheSeconds属性可以指定时间段，以定期刷新并检查底层的properties资源文件是否有变更
+// 提供了定时刷新功能，允许在不重启系统的情况下，更新资源的信息
+// 对于properties资源文件的加载方式也与ResourceBundleMessageSource有所不同，可以通过ResourceLoader来加载信息资源文件
 public class ReloadableResourceBundleMessageSource extends AbstractResourceBasedMessageSource
-		implements ResourceLoaderAware {
+        implements ResourceLoaderAware {
 
-	private static final String PROPERTIES_SUFFIX = ".properties";
+    private static final String PROPERTIES_SUFFIX = ".properties";
 
-	private static final String XML_SUFFIX = ".xml";
+    private static final String XML_SUFFIX = ".xml";
 
 
-	@Nullable
-	private Properties fileEncodings;
+    @Nullable
+    private Properties fileEncodings;
 
 	private boolean concurrentRefresh = true;
 

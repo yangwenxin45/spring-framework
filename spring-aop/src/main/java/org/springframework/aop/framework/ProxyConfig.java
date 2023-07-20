@@ -16,9 +16,9 @@
 
 package org.springframework.aop.framework;
 
-import java.io.Serializable;
-
 import org.springframework.util.Assert;
+
+import java.io.Serializable;
 
 /**
  * Convenience superclass for configuration used in creating proxies,
@@ -30,25 +30,34 @@ import org.springframework.util.Assert;
  */
 public class ProxyConfig implements Serializable {
 
-	/** use serialVersionUID from Spring 1.2 for interoperability */
-	private static final long serialVersionUID = -8409359707199703185L;
+    /**
+     * use serialVersionUID from Spring 1.2 for interoperability
+     */
+    private static final long serialVersionUID = -8409359707199703185L;
 
 
-	private boolean proxyTargetClass = false;
+    // 如果proxyTargetClass属性设置为true，则ProxyFactory将会使用CGLIB对目标对象进行代理
+    private boolean proxyTargetClass = false;
 
-	private boolean optimize = false;
+    // 该属性主要用于告知代理对象是否需要采取进一步的优化措施，如代理对象生成之后，即使为其添加或者移除了相应的Advice，代理对象也可以忽略这种变动
+    // 当该属性设置为true时，ProxyFactory会使用CGLIB进行代理对象的生成
+    private boolean optimize = false;
 
-	boolean opaque = false;
+    // 该属性用于控制生成的代理对象是否可以强制转型为Advised，默认值为false，表示任何生成的代理对象都可以强制转型为Advised
+    boolean opaque = false;
 
-	boolean exposeProxy = false;
+    // 设置exposeProxy，可以让SpringAOP框架在生成代理对象时，将当前代理对象绑定到ThreadLocal
+    // 如果目标对象需要访问当前代理对象，可以通过AopContext.currentProxy()取得
+    boolean exposeProxy = false;
 
-	private boolean frozen = false;
+    // 如果frozen设置为true，那么一旦针对代理对象生成的各项信息配置完成，则不容许更改
+    private boolean frozen = false;
 
 
-	/**
-	 * Set whether to proxy the target class directly, instead of just proxying
-	 * specific interfaces. Default is "false".
-	 * <p>Set this to "true" to force proxying for the TargetSource's exposed
+    /**
+     * Set whether to proxy the target class directly, instead of just proxying
+     * specific interfaces. Default is "false".
+     * <p>Set this to "true" to force proxying for the TargetSource's exposed
 	 * target class. If that target class is an interface, a JDK proxy will be
 	 * created for the given interface. If that target class is any other class,
 	 * a CGLIB proxy will be created for the given class.

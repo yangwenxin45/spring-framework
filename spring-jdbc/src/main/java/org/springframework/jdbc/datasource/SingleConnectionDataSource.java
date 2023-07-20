@@ -16,17 +16,17 @@
 
 package org.springframework.jdbc.datasource;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 
 /**
  * Implementation of {@link SmartDataSource} that wraps a single JDBC Connection
@@ -52,6 +52,7 @@ import org.springframework.util.ObjectUtils;
  * @see java.sql.Connection#close()
  * @see DataSourceUtils#releaseConnection
  */
+// 在每次请求的时候，DriverManagerDataSourced都会返回新的数据库连接，而SingleConnectionDataSource则是每次都返回同一个数据库连接
 public class SingleConnectionDataSource extends DriverManagerDataSource implements SmartDataSource, DisposableBean {
 
 	/** Create a close-suppressing proxy? */

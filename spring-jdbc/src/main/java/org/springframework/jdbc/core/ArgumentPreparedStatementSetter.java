@@ -16,10 +16,10 @@
 
 package org.springframework.jdbc.core;
 
+import org.springframework.lang.Nullable;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Simple adapter for {@link PreparedStatementSetter} that applies a given array of arguments.
@@ -45,8 +45,10 @@ public class ArgumentPreparedStatementSetter implements PreparedStatementSetter,
 	@Override
 	public void setValues(PreparedStatement ps) throws SQLException {
 		if (this.args != null) {
+            // 遍历每个参数以作类型匹配及转换
 			for (int i = 0; i < this.args.length; i++) {
 				Object arg = this.args[i];
+                // 解析当前属性
 				doSetValue(ps, i + 1, arg);
 			}
 		}

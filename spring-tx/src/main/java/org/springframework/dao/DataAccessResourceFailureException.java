@@ -25,16 +25,19 @@ import org.springframework.lang.Nullable;
  * @author Rod Johnson
  * @author Thomas Risberg
  */
+// 在无法访问相应的数据资源的情况下，将抛出DataAccessResourceFailureException
+// 对应这种异常出现的最常见的场景就是数据库服务器挂掉的情况
 @SuppressWarnings("serial")
 public class DataAccessResourceFailureException extends NonTransientDataAccessResourceException {
 
-	/**
-	 * Constructor for DataAccessResourceFailureException.
-	 * @param msg the detail message
-	 */
-	public DataAccessResourceFailureException(String msg) {
-		super(msg);
-	}
+    /**
+     * Constructor for DataAccessResourceFailureException.
+     *
+     * @param msg the detail message
+     */
+    public DataAccessResourceFailureException(String msg) {
+        super(msg);
+    }
 
 	/**
 	 * Constructor for DataAccessResourceFailureException.

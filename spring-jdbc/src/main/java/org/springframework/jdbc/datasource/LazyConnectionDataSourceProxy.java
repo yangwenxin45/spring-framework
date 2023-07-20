@@ -16,19 +16,18 @@
 
 package org.springframework.jdbc.datasource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.Constants;
+import org.springframework.lang.Nullable;
+
+import javax.sql.DataSource;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
-import javax.sql.DataSource;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.Constants;
-import org.springframework.lang.Nullable;
 
 /**
  * Proxy for a target DataSource, fetching actual JDBC Connections lazily,
@@ -76,15 +75,19 @@ import org.springframework.lang.Nullable;
  * @since 1.1.4
  * @see DataSourceTransactionManager
  */
+// 通过LazyConnectionDataSourceProxy取得的Connection对象是一个代理对象，该代理对象可以保证当Connection被使用的时候
+// 才会从LazyConnectionDataSourceProxy持有的DataSource目标对象上获取
 public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
 
-	/** Constants instance for TransactionDefinition */
-	private static final Constants constants = new Constants(Connection.class);
+    /**
+     * Constants instance for TransactionDefinition
+     */
+    private static final Constants constants = new Constants(Connection.class);
 
-	private static final Log logger = LogFactory.getLog(LazyConnectionDataSourceProxy.class);
+    private static final Log logger = LogFactory.getLog(LazyConnectionDataSourceProxy.class);
 
-	@Nullable
-	private Boolean defaultAutoCommit;
+    @Nullable
+    private Boolean defaultAutoCommit;
 
 	@Nullable
 	private Integer defaultTransactionIsolation;

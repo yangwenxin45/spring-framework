@@ -16,25 +16,14 @@
 
 package org.springframework.jms.connection;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Session;
-import javax.jms.TransactionRolledBackException;
-
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
-import org.springframework.transaction.CannotCreateTransactionException;
-import org.springframework.transaction.InvalidIsolationLevelException;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionSystemException;
-import org.springframework.transaction.UnexpectedRollbackException;
-import org.springframework.transaction.support.AbstractPlatformTransactionManager;
-import org.springframework.transaction.support.DefaultTransactionStatus;
-import org.springframework.transaction.support.ResourceTransactionManager;
-import org.springframework.transaction.support.SmartTransactionObject;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.transaction.*;
+import org.springframework.transaction.support.*;
 import org.springframework.util.Assert;
+
+import javax.jms.*;
+import java.lang.IllegalStateException;
 
 /**
  * {@link org.springframework.transaction.PlatformTransactionManager} implementation
@@ -62,7 +51,7 @@ import org.springframework.util.Assert;
  * {@link TransactionAwareConnectionFactoryProxy} for your target ConnectionFactory,
  * which will automatically participate in Spring-managed transactions.
  *
- * <p><b>The use of {@link CachingConnectionFactory} as a target for this
+ * <p><b>The use of {@link org.springframework.jms.connection.CachingConnectionFactory} as a target for this
  * transaction manager is strongly recommended.</b> CachingConnectionFactory
  * uses a single JMS Connection for all JMS access in order to avoid the overhead
  * of repeated Connection creation, as well as maintaining a cache of Sessions.
@@ -75,7 +64,7 @@ import org.springframework.util.Assert;
  * and/or {@code MessageConsumer.close()} calls before {@code Session.commit()},
  * with the latter supposed to commit all the messages that have been sent through the
  * producer handle and received through the consumer handle. As a safe general solution,
- * always pass in a {@link CachingConnectionFactory} into this transaction manager's
+ * always pass in a {@link org.springframework.jms.connection.CachingConnectionFactory} into this transaction manager's
  * {@link #setConnectionFactory "connectionFactory"} property.
  *
  * <p>Transaction synchronization is turned off by default, as this manager might
@@ -89,6 +78,7 @@ import org.springframework.util.Assert;
  * @see TransactionAwareConnectionFactoryProxy
  * @see org.springframework.jms.core.JmsTemplate
  */
+// 数据访问技术是JMS
 @SuppressWarnings("serial")
 public class JmsTransactionManager extends AbstractPlatformTransactionManager
 		implements ResourceTransactionManager, InitializingBean {
