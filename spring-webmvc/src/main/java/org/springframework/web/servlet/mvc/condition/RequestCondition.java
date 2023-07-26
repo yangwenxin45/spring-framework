@@ -16,9 +16,9 @@
 
 package org.springframework.web.servlet.mvc.condition;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.lang.Nullable;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Contract for request mapping conditions.
@@ -34,6 +34,7 @@ import org.springframework.lang.Nullable;
  * @param <T> the type of objects that this RequestCondition can be combined
  * with and compared to
  */
+// 此接口专门用于保存从request提取出的用于匹配Handler的条件
 public interface RequestCondition<T> {
 
 	/**

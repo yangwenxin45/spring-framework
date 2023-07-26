@@ -41,24 +41,28 @@ import java.util.Map;
  * @see #registerBeanDefinitionParser(String, BeanDefinitionParser)
  * @see #registerBeanDefinitionDecorator(String, BeanDefinitionDecorator)
  */
+// NamespaceHandler的默认实现
 public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
 	/**
 	 * Stores the {@link BeanDefinitionParser} implementations keyed by the
 	 * local name of the {@link Element Elements} they handle.
 	 */
+    // 处理解析工作
 	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
 
 	/**
 	 * Stores the {@link BeanDefinitionDecorator} implementations keyed by the
 	 * local name of the {@link Element Elements} they handle.
 	 */
+    // 处理标签类型
 	private final Map<String, BeanDefinitionDecorator> decorators = new HashMap<>();
 
 	/**
 	 * Stores the {@link BeanDefinitionDecorator} implementations keyed by the local
 	 * name of the {@link Attr Attrs} they handle.
 	 */
+    // 处理类型属性的装饰
 	private final Map<String, BeanDefinitionDecorator> attributeDecorators = new HashMap<>();
 
 
@@ -113,6 +117,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	private BeanDefinitionDecorator findDecoratorForNode(Node node, ParserContext parserContext) {
 		BeanDefinitionDecorator decorator = null;
 		String localName = parserContext.getDelegate().getLocalName(node);
+        // 先判断是标签还是属性，然后再调用相应方法进行处理
 		if (node instanceof Element) {
 			decorator = this.decorators.get(localName);
 		}

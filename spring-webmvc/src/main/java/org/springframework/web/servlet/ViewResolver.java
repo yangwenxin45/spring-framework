@@ -16,9 +16,9 @@
 
 package org.springframework.web.servlet;
 
-import java.util.Locale;
-
 import org.springframework.lang.Nullable;
+
+import java.util.Locale;
 
 /**
  * Interface to be implemented by objects that can resolve views by name.
@@ -52,6 +52,7 @@ public interface ViewResolver {
 	 * @throws Exception if the view cannot be resolved
 	 * (typically in case of problems creating an actual View object)
 	 */
+    // 用来将String类型的视图名和Locale解析为View类型的视图
 	@Nullable
 	View resolveViewName(String viewName, Locale locale) throws Exception;
 

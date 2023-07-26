@@ -16,12 +16,12 @@
 
 package org.springframework.context.i18n;
 
-import java.util.Locale;
-import java.util.TimeZone;
-
 import org.springframework.core.NamedInheritableThreadLocal;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.lang.Nullable;
+
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Simple holder class that associates a LocaleContext instance
@@ -44,8 +44,9 @@ import org.springframework.lang.Nullable;
  */
 public abstract class LocaleContextHolder {
 
-	private static final ThreadLocal<LocaleContext> localeContextHolder =
-			new NamedThreadLocal<>("LocaleContext");
+    // org.springframework.context.i18n.LocaleContextHolder
+    private static final ThreadLocal<LocaleContext> localeContextHolder =
+            new NamedThreadLocal<>("LocaleContext");
 
 	private static final ThreadLocal<LocaleContext> inheritableLocaleContextHolder =
 			new NamedInheritableThreadLocal<>("LocaleContext");

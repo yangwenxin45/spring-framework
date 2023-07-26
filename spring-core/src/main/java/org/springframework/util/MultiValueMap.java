@@ -16,10 +16,10 @@
 
 package org.springframework.util;
 
+import org.springframework.lang.Nullable;
+
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Extension of the {@code Map} interface that stores multiple values.
@@ -29,6 +29,7 @@ import org.springframework.lang.Nullable;
  * @param <K> the key type
  * @param <V> the value element type
  */
+// 一个key对应多个值的Map，因为value是一个List类型的值
 public interface MultiValueMap<K, V> extends Map<K, List<V>> {
 
 	/**

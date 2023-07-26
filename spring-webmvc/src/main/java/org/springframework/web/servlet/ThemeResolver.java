@@ -16,10 +16,10 @@
 
 package org.springframework.web.servlet;
 
+import org.springframework.lang.Nullable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.Nullable;
 
 /**
  * Interface for web-based theme resolution strategies that allows for
@@ -46,6 +46,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.ui.context.Theme
  * @see org.springframework.ui.context.ThemeSource
  */
+// ThemeResolver默认使用的是FixedThemeResolver，作用是从request解析出主题名
 public interface ThemeResolver {
 
 	/**

@@ -16,14 +16,6 @@
 
 package org.springframework.web.servlet.view;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -35,6 +27,8 @@ import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.servlet.View;
+
+import java.util.*;
 
 /**
  * A {@link org.springframework.web.servlet.ViewResolver} implementation that uses
@@ -60,6 +54,7 @@ import org.springframework.web.servlet.View;
  * @see java.util.PropertyResourceBundle
  * @see UrlBasedViewResolver
  */
+// ResourceBundleViewResolver根据properties配置文件来解析，需要将每一个视图名和对应的视图类型配置到相应的properties文件中
 public class ResourceBundleViewResolver extends AbstractCachingViewResolver
 		implements Ordered, InitializingBean, DisposableBean {
 

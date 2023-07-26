@@ -72,6 +72,7 @@ import java.util.Set;
  * @see #doGet
  * @see #doPost
  */
+// HttpServletBean直接继承自Java的HttpServlet，其作用是将Servlet中配置的参数设置到相应的属性
 @SuppressWarnings("serial")
 public abstract class HttpServletBean extends HttpServlet implements EnvironmentCapable, EnvironmentAware {
 
@@ -150,11 +151,12 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		if (!pvs.isEmpty()) {
 			try {
                 // 将当前的这个Servlet类转化为一个BeanWrapper，从而能够以Spring的方式对init-param的值进行注入
+                // BeanWrapper是Spring提供的一个用来操作JavaBean属性的工具，使用它可以直接修改一个对象的属性
 				BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(this);
 				ResourceLoader resourceLoader = new ServletContextResourceLoader(getServletContext());
                 // 注册自定义属性编辑器，一旦遇到Resource类型的属性将会使用ResourceEditor进行解析
 				bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, getEnvironment()));
-                // 空实现，留给子类覆盖
+                // 模板方法，可以在子类调用，做一些初始化工作
 				initBeanWrapper(bw);
                 // 属性注入
 				bw.setPropertyValues(pvs, true);
@@ -168,7 +170,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		}
 
         // Let subclasses do whatever initialization they like.
-        // 留给子类扩展
+        // 模板方法，子类初始化的入口方法
 		initServletBean();
 
 		if (logger.isDebugEnabled()) {

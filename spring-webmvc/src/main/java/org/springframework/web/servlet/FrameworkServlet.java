@@ -129,6 +129,7 @@ import java.util.concurrent.Callable;
  * @see #setContextInitializerClasses
  * @see #setNamespace
  */
+// FrameworkServlet初始化了WebApplicationContext
 @SuppressWarnings("serial")
 public abstract class FrameworkServlet extends HttpServletBean implements ApplicationContextAware {
 
@@ -159,10 +160,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 
 	/** ServletContext attribute to find the WebApplicationContext in */
+    // 在ServletContext的属性中，要用作WebApplicationContext的属性名称
 	@Nullable
 	private String contextAttribute;
 
 	/** WebApplicationContext implementation class to create */
+    // 创建WebApplicationContext的类型
 	private Class<?> contextClass = DEFAULT_CONTEXT_CLASS;
 
 	/** WebApplicationContext id to assign */
@@ -174,6 +177,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private String namespace;
 
 	/** Explicit context config location */
+    // SpringMVC配置文件的位置
 	@Nullable
 	private String contextConfigLocation;
 
@@ -186,6 +190,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	private String contextInitializerClasses;
 
 	/** Should we publish the context as a ServletContext attribute? */
+    // 是否将webApplicationContext设置到ServletContext的属性
 	private boolean publishContext = true;
 
 	/** Should we publish a ServletRequestHandledEvent at the end of each request? */
@@ -495,8 +500,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		long startTime = System.currentTimeMillis();
 
 		try {
+            // 初始化WebApplicationContext
 			this.webApplicationContext = initWebApplicationContext();
-			// 设计为子类覆盖
+            // 初始化FrameworkServlet，设计为子类覆盖
 			initFrameworkServlet();
 		}
 		catch (ServletException | RuntimeException ex) {
@@ -511,73 +517,88 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		}
 	}
 
-	/**
-	 * Initialize and publish the WebApplicationContext for this servlet.
-	 * <p>Delegates to {@link #createWebApplicationContext} for actual creation
-	 * of the context. Can be overridden in subclasses.
-	 * @return the WebApplicationContext instance
-	 * @see #FrameworkServlet(WebApplicationContext)
-	 * @see #setContextClass
-	 * @see #setContextConfigLocation
-	 */
-	protected WebApplicationContext initWebApplicationContext() {
-		WebApplicationContext rootContext =
-				WebApplicationContextUtils.getWebApplicationContext(getServletContext());
-		WebApplicationContext wac = null;
+    /**
+     * Initialize and publish the WebApplicationContext for this servlet.
+     * <p>Delegates to {@link #createWebApplicationContext} for actual creation
+     * of the context. Can be overridden in subclasses.
+     * @return the WebApplicationContext instance
+     * @see #FrameworkServlet(WebApplicationContext)
+     * @see #setContextClass
+     * @see #setContextConfigLocation
+     */
+    /**
+     * initWebApplicationContext处理流程：
+     * 1. 获取spring的根容器rootContext
+     * 2. 设置webApplicationContext并根据情况调用onRefresh方法
+     * 3. 将webApplicationContext设置到ServletContext中
+     *
+     * @author yangwenxin
+     * @date 2023-07-24 15:00
+     */
+    protected WebApplicationContext initWebApplicationContext() {
+        // 获取rootContext
+        WebApplicationContext rootContext =
+                WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+        WebApplicationContext wac = null;
 
-		if (this.webApplicationContext != null) {
-			// A context instance was injected at construction time -> use it
-			// context实例在构造函数中被注入
-			wac = this.webApplicationContext;
-			if (wac instanceof ConfigurableWebApplicationContext) {
-				ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) wac;
-				if (!cwac.isActive()) {
-					// The context has not yet been refreshed -> provide services such as
-					// setting the parent context, setting the application context id, etc
-					if (cwac.getParent() == null) {
-						// The context instance was injected without an explicit parent -> set
-						// the root application context (if any; may be null) as the parent
-						cwac.setParent(rootContext);
-					}
-					// 刷新上下文环境
-					configureAndRefreshWebApplicationContext(cwac);
-				}
-			}
-		}
-		if (wac == null) {
-			// No context instance was injected at construction time -> see if one
-			// has been registered in the servlet context. If one exists, it is assumed
-			// that the parent context (if any) has already been set and that the
-			// user has performed any initialization such as setting the context id
-			// 根据contextAttribute属性加载WebApplicationContext
-			wac = findWebApplicationContext();
-		}
-		if (wac == null) {
-			// No context instance is defined for this servlet -> create a local one
-			wac = createWebApplicationContext(rootContext);
-		}
+        // 如果已经通过构造方法设置了webApplicationContext
+        if (this.webApplicationContext != null) {
+            // A context instance was injected at construction time -> use it
+            // context实例在构造函数中被注入
+            wac = this.webApplicationContext;
+            if (wac instanceof ConfigurableWebApplicationContext) {
+                ConfigurableWebApplicationContext cwac = (ConfigurableWebApplicationContext) wac;
+                if (!cwac.isActive()) {
+                    // The context has not yet been refreshed -> provide services such as
+                    // setting the parent context, setting the application context id, etc
+                    if (cwac.getParent() == null) {
+                        // The context instance was injected without an explicit parent -> set
+                        // the root application context (if any; may be null) as the parent
+                        cwac.setParent(rootContext);
+                    }
+                    // 刷新上下文环境
+                    configureAndRefreshWebApplicationContext(cwac);
+                }
+            }
+        }
+        if (wac == null) {
+            // No context instance was injected at construction time -> see if one
+            // has been registered in the servlet context. If one exists, it is assumed
+            // that the parent context (if any) has already been set and that the
+            // user has performed any initialization such as setting the context id
+            // 当webApplicationContext已经存在ServletContext中时，通过配置在Servlet中的contextAttribute参数获取
+            wac = findWebApplicationContext();
+        }
+        if (wac == null) {
+            // No context instance is defined for this servlet -> create a local one
+            // 如果webApplicationContext还没有创建，则创建一个
+            wac = createWebApplicationContext(rootContext);
+        }
 
-		if (!this.refreshEventReceived) {
-			// Either the context is not a ConfigurableApplicationContext with refresh
-			// support or the context injected at construction time had already been
-			// refreshed -> trigger initial onRefresh manually here.
-			synchronized (this.onRefreshMonitor) {
-				onRefresh(wac);
-			}
-		}
+        // 只有使用第二种方式初始化webApplicationContext的时候才会在这里调用onRefresh方法，并且只会调用一次
+        if (!this.refreshEventReceived) {
+            // Either the context is not a ConfigurableApplicationContext with refresh
+            // support or the context injected at construction time had already been
+            // refreshed -> trigger initial onRefresh manually here.
+            // 当ContextRefreshedEvent事件没有触发时调用此方法，模板方法，可以在子类重写
+            synchronized (this.onRefreshMonitor) {
+                onRefresh(wac);
+            }
+        }
 
-		if (this.publishContext) {
-			// Publish the context as a servlet context attribute.
-			String attrName = getServletContextAttributeName();
-			getServletContext().setAttribute(attrName, wac);
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Published WebApplicationContext of servlet '" + getServletName() +
-						"' as ServletContext attribute with name [" + attrName + "]");
-			}
-		}
+        if (this.publishContext) {
+            // Publish the context as a servlet context attribute.
+            // 将ApplicationContext保存到ServletContext中
+            String attrName = getServletContextAttributeName();
+            getServletContext().setAttribute(attrName, wac);
+            if (this.logger.isDebugEnabled()) {
+                this.logger.debug("Published WebApplicationContext of servlet '" + getServletName() +
+                        "' as ServletContext attribute with name [" + attrName + "]");
+            }
+        }
 
-		return wac;
-	}
+        return wac;
+    }
 
 	/**
 	 * Retrieve a {@code WebApplicationContext} from the {@code ServletContext}
@@ -626,6 +647,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 					"' will try to create custom WebApplicationContext context of class '" +
 					contextClass.getName() + "'" + ", using parent context [" + parent + "]");
 		}
+		// 检查创建类型
 		if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
 			throw new ApplicationContextException(
 					"Fatal initialization error in servlet with name '" + getServletName() +
@@ -640,7 +662,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		// parent为在ContextLoaderListener中创建的实例
 		// 在ContextLoaderListener加载的时候初始化的WebApplicationContext类型实例
 		wac.setParent(parent);
-		// 获取contextConfigLocation属性，配置在servlet初始化参数中
+        // 获取contextConfigLocation属性，配置在servlet初始化参数中，默认为WEB-INFO/[ServletName]-Servlet.xml
 		String configLocation = getContextConfigLocation();
 		if (configLocation != null) {
 			wac.setConfigLocation(configLocation);
@@ -668,6 +690,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		wac.setServletContext(getServletContext());
 		wac.setServletConfig(getServletConfig());
 		wac.setNamespace(getNamespace());
+        // 添加监听ContextRefreshedEvent的监听器
 		wac.addApplicationListener(new SourceFilteringListener(wac, new ContextRefreshListener()));
 
 		// The wac environment's #initPropertySources will be called in any case when the context
@@ -859,6 +882,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		HttpMethod httpMethod = HttpMethod.resolve(request.getMethod());
 		if (httpMethod == HttpMethod.PATCH || httpMethod == null) {
+			// 对PATCH类型请求的处理
 			processRequest(request, response);
 		}
 		else {
@@ -921,27 +945,28 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 */
 	@Override
 	protected void doOptions(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+            throws ServletException, IOException {
 
-		if (this.dispatchOptionsRequest || CorsUtils.isPreFlightRequest(request)) {
-			processRequest(request, response);
-			if (response.containsHeader("Allow")) {
-				// Proper OPTIONS response coming from a handler - we're done.
-				return;
-			}
-		}
+        // 通过设置dispatchOptionsRequest参数决定是自己处理还是交给父类处理
+        if (this.dispatchOptionsRequest || CorsUtils.isPreFlightRequest(request)) {
+            processRequest(request, response);
+            if (response.containsHeader("Allow")) {
+                // Proper OPTIONS response coming from a handler - we're done.
+                return;
+            }
+        }
 
-		// Use response wrapper in order to always add PATCH to the allowed methods
-		super.doOptions(request, new HttpServletResponseWrapper(response) {
-			@Override
-			public void setHeader(String name, String value) {
-				if ("Allow".equals(name)) {
-					value = (StringUtils.hasLength(value) ? value + ", " : "") + HttpMethod.PATCH.name();
-				}
-				super.setHeader(name, value);
-			}
-		});
-	}
+        // Use response wrapper in order to always add PATCH to the allowed methods
+        super.doOptions(request, new HttpServletResponseWrapper(response) {
+            @Override
+            public void setHeader(String name, String value) {
+                if ("Allow".equals(name)) {
+                    value = (StringUtils.hasLength(value) ? value + ", " : "") + HttpMethod.PATCH.name();
+                }
+                super.setHeader(name, value);
+            }
+        });
+    }
 
 	/**
 	 * Delegate TRACE requests to {@link #processRequest}, if desired.
@@ -956,70 +981,80 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 			processRequest(request, response);
 			if ("message/http".equals(response.getContentType())) {
 				// Proper TRACE response coming from a handler - we're done.
-				return;
-			}
-		}
-		super.doTrace(request, response);
-	}
+                return;
+            }
+        }
+        super.doTrace(request, response);
+    }
 
-	/**
-	 * Process this request, publishing an event regardless of the outcome.
-	 * <p>The actual event handling is performed by the abstract
-	 * {@link #doService} template method.
-	 */
-	protected final void processRequest(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+    /**
+     * Process this request, publishing an event regardless of the outcome.
+     * <p>The actual event handling is performed by the abstract
+     * {@link #doService} template method.
+     */
+    /**
+     * processRequest主要做了两件事：
+     * 1. 对LocaleContext和RequestAttributes的设置与恢复
+     * 2. 处理完后发布了ServletRequestHandledEvent消息
+     *
+     * @author yangwenxin
+     * @date 2023-07-24 16:40
+     */
+    protected final void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-		// 记录当前时间，用于计算web请求的处理时间
-		long startTime = System.currentTimeMillis();
-		Throwable failureCause = null;
+        // 记录当前时间，用于计算web请求的处理时间
+        long startTime = System.currentTimeMillis();
+        Throwable failureCause = null;
 
-		LocaleContext previousLocaleContext = LocaleContextHolder.getLocaleContext();
-		LocaleContext localeContext = buildLocaleContext(request);
+        // 获取LocaleContextHolder中原来保存的LocaleContext
+        LocaleContext previousLocaleContext = LocaleContextHolder.getLocaleContext();
+        // 获取当前请求的LocaleContext
+        LocaleContext localeContext = buildLocaleContext(request);
 
-		RequestAttributes previousAttributes = RequestContextHolder.getRequestAttributes();
-		ServletRequestAttributes requestAttributes = buildRequestAttributes(request, response, previousAttributes);
+        // 获取RequestContextHolder中原来保存的RequestAttributes
+        RequestAttributes previousAttributes = RequestContextHolder.getRequestAttributes();
+        // 获取当前请求的ServletRequestAttributes
+        ServletRequestAttributes requestAttributes = buildRequestAttributes(request, response, previousAttributes);
 
-		WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
-		asyncManager.registerCallableInterceptor(FrameworkServlet.class.getName(), new RequestBindingInterceptor());
+        WebAsyncManager asyncManager = WebAsyncUtils.getAsyncManager(request);
+        asyncManager.registerCallableInterceptor(FrameworkServlet.class.getName(), new RequestBindingInterceptor());
 
-		initContextHolders(request, localeContext, requestAttributes);
+        // 将当前请求的LocaleContext和ServletRequestAttributes设置到LocaleContextHolder和RequestContextHolder
+        initContextHolders(request, localeContext, requestAttributes);
 
-		try {
-			doService(request, response);
-		}
-		catch (ServletException | IOException ex) {
-			failureCause = ex;
-			throw ex;
-		}
-		catch (Throwable ex) {
-			failureCause = ex;
-			throw new NestedServletException("Request processing failed", ex);
-		}
+        try {
+            // 实际处理请求入口
+            doService(request, response);
+        } catch (ServletException | IOException ex) {
+            failureCause = ex;
+            throw ex;
+        } catch (Throwable ex) {
+            failureCause = ex;
+            throw new NestedServletException("Request processing failed", ex);
+        } finally {
+            // 恢复原来的LocaleContext和ServletRequestAttributes到LocaleContextHolder和RequestContextHolder中
+            resetContextHolders(request, previousLocaleContext, previousAttributes);
+            if (requestAttributes != null) {
+                requestAttributes.requestCompleted();
+            }
 
-		finally {
-			resetContextHolders(request, previousLocaleContext, previousAttributes);
-			if (requestAttributes != null) {
-				requestAttributes.requestCompleted();
-			}
+            if (logger.isDebugEnabled()) {
+                if (failureCause != null) {
+                    this.logger.debug("Could not complete request", failureCause);
+                } else {
+                    if (asyncManager.isConcurrentHandlingStarted()) {
+                        logger.debug("Leaving response open for concurrent processing");
+                    } else {
+                        this.logger.debug("Successfully completed request");
+                    }
+                }
+            }
 
-			if (logger.isDebugEnabled()) {
-				if (failureCause != null) {
-					this.logger.debug("Could not complete request", failureCause);
-				}
-				else {
-					if (asyncManager.isConcurrentHandlingStarted()) {
-						logger.debug("Leaving response open for concurrent processing");
-					}
-					else {
-						this.logger.debug("Successfully completed request");
-					}
-				}
-			}
-
-			publishRequestHandledEvent(request, response, startTime, failureCause);
-		}
-	}
+            // 发布ServletRequestHandledEvent消息
+            publishRequestHandledEvent(request, response, startTime, failureCause);
+        }
+    }
 
 	/**
 	 * Build a LocaleContext for the given request, exposing the request's
@@ -1081,8 +1116,9 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	}
 
 	private void publishRequestHandledEvent(HttpServletRequest request, HttpServletResponse response,
-			long startTime, @Nullable Throwable failureCause) {
+                                            long startTime, @Nullable Throwable failureCause) {
 
+		// publishEvents可以在配置Servlet时设置，默认为true
 		if (this.publishEvents && this.webApplicationContext != null) {
 			// Whether or not we succeeded, publish an event.
 			long processingTime = System.currentTimeMillis() - startTime;

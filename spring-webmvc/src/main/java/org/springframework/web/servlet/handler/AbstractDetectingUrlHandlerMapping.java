@@ -31,18 +31,26 @@ import org.springframework.util.ObjectUtils;
  * @since 2.5
  * @see #determineUrlsForHandler
  */
+// 将容器中的所有bean都拿出来，按一定规则注册到父类的Map中
 public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
-	private boolean detectHandlersInAncestorContexts = false;
+    /**
+     * 默认情况下，该属性的值为false，即只在当前应用上下文中检测处理程序
+     * 如果该属性设置为true，SpringMVC将会在当前应用上下文的祖先上下文中递归地检测处理程序
+     *
+     * @author yangwenxin
+     * @date 2023-07-25 15:00
+     */
+    private boolean detectHandlersInAncestorContexts = false;
 
 
-	/**
-	 * Set whether to detect handler beans in ancestor ApplicationContexts.
-	 * <p>Default is "false": Only handler beans in the current ApplicationContext
-	 * will be detected, i.e. only in the context that this HandlerMapping itself
-	 * is defined in (typically the current DispatcherServlet's context).
-	 * <p>Switch this flag on to detect handler beans in ancestor contexts
-	 * (typically the Spring root WebApplicationContext) as well.
+    /**
+     * Set whether to detect handler beans in ancestor ApplicationContexts.
+     * <p>Default is "false": Only handler beans in the current ApplicationContext
+     * will be detected, i.e. only in the context that this HandlerMapping itself
+     * is defined in (typically the current DispatcherServlet's context).
+     * <p>Switch this flag on to detect handler beans in ancestor contexts
+     * (typically the Spring root WebApplicationContext) as well.
 	 */
 	public void setDetectHandlersInAncestorContexts(boolean detectHandlersInAncestorContexts) {
 		this.detectHandlersInAncestorContexts = detectHandlersInAncestorContexts;
@@ -69,26 +77,30 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 */
 	protected void detectHandlers() throws BeansException {
 		ApplicationContext applicationContext = obtainApplicationContext();
-		if (logger.isDebugEnabled()) {
-			logger.debug("Looking for URL mappings in application context: " + applicationContext);
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug("Looking for URL mappings in application context: " + applicationContext);
+        }
+        // 获取容器中所有bean的名字
 		String[] beanNames = (this.detectHandlersInAncestorContexts ?
 				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class) :
 				applicationContext.getBeanNamesForType(Object.class));
 
-		// Take any bean name that we can determine URLs for.
-		for (String beanName : beanNames) {
-			String[] urls = determineUrlsForHandler(beanName);
-			if (!ObjectUtils.isEmpty(urls)) {
-				// URL paths found: Let's consider it a handler.
-				registerHandler(urls, beanName);
-			}
-			else {
-				if (logger.isDebugEnabled()) {
-					logger.debug("Rejected bean name '" + beanName + "': no URL paths identified");
-				}
-			}
-		}
+        // Take any bean name that we can determine URLs for.
+        // 对每个beanName解析url，如果能解析到就注册到父类的Map中
+        for (String beanName : beanNames) {
+            // 使用beanName解析url，是模板方法，子类具体实现
+            String[] urls = determineUrlsForHandler(beanName);
+            // 如果解析到url则注册到父类
+            if (!ObjectUtils.isEmpty(urls)) {
+                // URL paths found: Let's consider it a handler.
+                // 父类的registerHandler方法
+                registerHandler(urls, beanName);
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Rejected bean name '" + beanName + "': no URL paths identified");
+                }
+            }
+        }
 	}
 
 

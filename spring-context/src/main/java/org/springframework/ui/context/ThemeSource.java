@@ -27,6 +27,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @see Theme
  */
+// ThemeSource默认使用的是WebApplicationContext（其实是AbstractRefreshableWebApplicationContext里的ThemeSource），作用是根据主题名找到具体的主题
 public interface ThemeSource {
 
 	/**

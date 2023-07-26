@@ -16,10 +16,10 @@
 
 package org.springframework.web.servlet;
 
+import org.springframework.lang.Nullable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.Nullable;
 
 /**
  * A strategy interface for retrieving and saving FlashMap instances.
@@ -29,6 +29,7 @@ import org.springframework.lang.Nullable;
  * @since 3.1
  * @see FlashMap
  */
+// FlashMap主要用在redirect中传递参数，而FlashMapManager是用来管理FLashMap的
 public interface FlashMapManager {
 
 	/**
@@ -42,6 +43,7 @@ public interface FlashMapManager {
 	 * @param response the current response
 	 * @return a FlashMap matching the current request or {@code null}
 	 */
+    // 用于恢复参数，并将恢复过的和超时的参数从保存介质中删除
 	@Nullable
 	FlashMap retrieveAndUpdate(HttpServletRequest request, HttpServletResponse response);
 
@@ -55,6 +57,7 @@ public interface FlashMapManager {
 	 * @param request the current request
 	 * @param response the current response
 	 */
+    // 用于将参数保存起来
 	void saveOutputFlashMap(FlashMap flashMap, HttpServletRequest request, HttpServletResponse response);
 
 }

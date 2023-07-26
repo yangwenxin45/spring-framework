@@ -16,12 +16,12 @@
 
 package org.springframework.web.servlet.handler;
 
+import org.springframework.beans.BeansException;
+import org.springframework.util.CollectionUtils;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import org.springframework.beans.BeansException;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Implementation of the {@link org.springframework.web.servlet.HandlerMapping}
@@ -45,7 +45,6 @@ import org.springframework.util.CollectionUtils;
  * is to map within the current servlet mapping if applicable; see the
  * {@link #setAlwaysUseFullPath "alwaysUseFullPath"} property. For details on the
  * pattern options, see the {@link org.springframework.util.AntPathMatcher} javadoc.
-
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @see #setMappings
@@ -54,16 +53,25 @@ import org.springframework.util.CollectionUtils;
  */
 public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 
-	private final Map<String, Object> urlMap = new LinkedHashMap<>();
+    /**
+     * 放置url和Handler的对应关系，最后注册到父类的Map中
+     * 自己定义一个Map主要有两个作用：
+     * 1. 方便配置
+     * 2. 可以在注册前做一些预处理，如确保所有url都已"/"开头
+     *
+     * @author yangwenxin
+     * @date 2023-07-25 14:47
+     */
+    private final Map<String, Object> urlMap = new LinkedHashMap<>();
 
 
-	/**
-	 * Map URL paths to handler bean names.
-	 * This is the typical way of configuring this HandlerMapping.
-	 * <p>Supports direct URL matches and Ant-style pattern matches. For syntax
-	 * details, see the {@link org.springframework.util.AntPathMatcher} javadoc.
-	 * @param mappings properties with URLs as keys and bean names as values
-	 * @see #setUrlMap
+    /**
+     * Map URL paths to handler bean names.
+     * This is the typical way of configuring this HandlerMapping.
+     * <p>Supports direct URL matches and Ant-style pattern matches. For syntax
+     * details, see the {@link org.springframework.util.AntPathMatcher} javadoc.
+     * @param mappings properties with URLs as keys and bean names as values
+     * @see #setUrlMap
 	 */
 	public void setMappings(Properties mappings) {
 		CollectionUtils.mergePropertiesIntoMap(mappings, this.urlMap);
@@ -99,33 +107,38 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
 	 */
 	@Override
 	public void initApplicationContext() throws BeansException {
-		super.initApplicationContext();
-		registerHandlers(this.urlMap);
-	}
+        super.initApplicationContext();
+        registerHandlers(this.urlMap);
+    }
 
-	/**
-	 * Register all handlers specified in the URL map for the corresponding paths.
-	 * @param urlMap Map with URL paths as keys and handler beans or bean names as values
-	 * @throws BeansException if a handler couldn't be registered
-	 * @throws IllegalStateException if there is a conflicting handler registered
-	 */
-	protected void registerHandlers(Map<String, Object> urlMap) throws BeansException {
-		if (urlMap.isEmpty()) {
-			logger.warn("Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping");
-		}
-		else {
-			urlMap.forEach((url, handler) -> {
-				// Prepend with slash if not already present.
-				if (!url.startsWith("/")) {
-					url = "/" + url;
-				}
-				// Remove whitespace from handler bean name.
-				if (handler instanceof String) {
-					handler = ((String) handler).trim();
-				}
-				registerHandler(url, handler);
-			});
-		}
-	}
+    /**
+     * Register all handlers specified in the URL map for the corresponding paths.
+     * @param urlMap Map with URL paths as keys and handler beans or bean names as values
+     * @throws BeansException if a handler couldn't be registered
+     * @throws IllegalStateException if there is a conflicting handler registered
+     */
+    /**
+     * 负责将配置的urlMap注册到AbstractUrlHandlerMapping的Map中
+     *
+     * @author yangwenxin
+     * @date 2023-07-25 14:55
+     */
+    protected void registerHandlers(Map<String, Object> urlMap) throws BeansException {
+        if (urlMap.isEmpty()) {
+            logger.warn("Neither 'urlMap' nor 'mappings' set on SimpleUrlHandlerMapping");
+        } else {
+            urlMap.forEach((url, handler) -> {
+                // Prepend with slash if not already present.
+                if (!url.startsWith("/")) {
+                    url = "/" + url;
+                }
+                // Remove whitespace from handler bean name.
+                if (handler instanceof String) {
+                    handler = ((String) handler).trim();
+                }
+                registerHandler(url, handler);
+            });
+        }
+    }
 
 }

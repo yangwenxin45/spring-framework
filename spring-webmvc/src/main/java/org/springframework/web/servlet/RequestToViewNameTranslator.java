@@ -16,9 +16,9 @@
 
 package org.springframework.web.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.lang.Nullable;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Strategy interface for translating an incoming
@@ -29,6 +29,7 @@ import org.springframework.lang.Nullable;
  * @author Juergen Hoeller
  * @since 2.0
  */
+// RequestToViewNameTranslator在Spring MVC容器里只可以配置一个，所以所有request到ViewName的转换规则都要在一个Translator里面全部实现
 public interface RequestToViewNameTranslator {
 
 	/**
@@ -38,6 +39,7 @@ public interface RequestToViewNameTranslator {
 	 * @return the view name, or {@code null} if no default found
 	 * @throws Exception if view name translation fails
 	 */
+    // 从request中获取viewName，返回默认视图名
 	@Nullable
 	String getViewName(HttpServletRequest request) throws Exception;
 

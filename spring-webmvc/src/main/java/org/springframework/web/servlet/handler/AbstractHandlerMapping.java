@@ -69,6 +69,14 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 
 	private PathMatcher pathMatcher = new AntPathMatcher();
 
+	/**
+	 * 用于配置SpringMVC的拦截器，有两种设置方式：
+	 * 1. 注册HandlerMapping时通过属性设置
+	 * 2. 通过子类的extendInterceptors钩子方法进行设置
+	 *
+	 * @author yangwenxin
+	 * @date 2023-07-25 13:51
+	 */
 	private final List<Object> interceptors = new ArrayList<>();
 
 	private final List<HandlerInterceptor> adaptedInterceptors = new ArrayList<>();
@@ -233,8 +241,11 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 */
 	@Override
 	protected void initApplicationContext() throws BeansException {
+		// 模板方法，用于给子类提供一个添加（或者修改）Interceptors的入口
 		extendInterceptors(this.interceptors);
+		// 用于将Spring MVC容器及父容器中的所有MappedInterceptor类型的Bean添加到mappedInterceptors属性
 		detectMappedInterceptors(this.adaptedInterceptors);
+		// 初始化Interceptor，具体是将interceptors属性里所包含的对象按类型添加到adaptedInterceptors
 		initInterceptors();
 	}
 
@@ -340,16 +351,26 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * @return the corresponding handler instance, or the default handler
 	 * @see #getHandlerInternal
 	 */
+	/**
+	 * 查找Handler的过程：
+	 * 1. 通过getHandlerInternal(request)方法获取，这是个模板方法，留给子类具体实现
+	 * 2. 如果没有获取到则使用默认的Handler，默认的Handler保存在AbstractHandlerMapping的一个Object类型的属性defaultHandler中，
+	 * 可以在配置HandlerMapping时进行配置，也可以在子类中进行设置
+	 * 3. 如果找到的Handler是String类型，则以它为名到SpringMVC的容器里查找相应的Bean
+	 *
+	 * @author yangwenxin
+	 * @date 2023-07-25 13:56
+	 */
 	@Override
 	@Nullable
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
-        // 根据request获取对应的handler
+		// 根据request获取对应的handler
 		Object handler = getHandlerInternal(request);
 		if (handler == null) {
-            // 如果没有对应request的handler则使用默认的handler
+			// 如果没有对应request的handler则使用默认的handler
 			handler = getDefaultHandler();
 		}
-        // 如果也没有提供默认的handler则无法继续处理返回null
+		// 如果也没有提供默认的handler则无法继续处理返回null
 		if (handler == null) {
 			return null;
 		}
@@ -359,7 +380,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 			handler = obtainApplicationContext().getBean(handlerName);
 		}
 
-        // 加入拦截器到执行链
+		// 加入拦截器到执行链
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 		if (CorsUtils.isCorsRequest(request)) {
 			CorsConfiguration globalConfig = this.globalCorsConfigSource.getCorsConfiguration(request);
@@ -409,6 +430,12 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * @return the HandlerExecutionChain (never {@code null})
 	 * @see #getAdaptedInterceptors()
 	 */
+	/**
+	 * 使用handler创建出HandlerExecutionChain类型的变量，然后将adaptedInterceptors和符合要求的mappedInterceptors添加进去，最后将其返回
+	 *
+	 * @author yangwenxin
+	 * @date 2023-07-25 14:01
+	 */
 	protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
 		HandlerExecutionChain chain = (handler instanceof HandlerExecutionChain ?
 				(HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
@@ -420,8 +447,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 				if (mappedInterceptor.matches(lookupPath, this.pathMatcher)) {
 					chain.addInterceptor(mappedInterceptor.getInterceptor());
 				}
-			}
-			else {
+			} else {
 				chain.addInterceptor(interceptor);
 			}
 		}
