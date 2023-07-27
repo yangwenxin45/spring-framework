@@ -16,9 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -39,6 +36,9 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.multipart.support.MultipartResolutionDelegate;
 import org.springframework.web.multipart.support.RequestPartServletServerHttpRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Resolves the following method arguments:
@@ -66,6 +66,7 @@ import org.springframework.web.multipart.support.RequestPartServletServerHttpReq
  * @author Juergen Hoeller
  * @since 3.1
  */
+// 解析注解了@RequestPart、MultipartFile类型以及javax.servlet.http.Part类型的参数
 public class RequestPartMethodArgumentResolver extends AbstractMessageConverterMethodArgumentResolver {
 
 	/**

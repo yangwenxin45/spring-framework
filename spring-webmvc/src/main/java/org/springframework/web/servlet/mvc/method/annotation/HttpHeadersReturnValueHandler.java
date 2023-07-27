@@ -16,8 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServletServerHttpResponse;
@@ -27,12 +25,15 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Handles {@link HttpHeaders} return values.
  *
  * @author Stephane Nicoll
  * @since 4.0.1
  */
+// 处理HttpHeaders类型的返回值，将HttpHeaders的返回值添加到response的Headers并设置mavContainer的requestHandled为true
 public class HttpHeadersReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Override

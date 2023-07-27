@@ -16,10 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.beans.PropertyEditor;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
@@ -40,6 +36,10 @@ import org.springframework.web.method.support.UriComponentsContributor;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.View;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.beans.PropertyEditor;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Resolves method arguments annotated with an @{@link PathVariable}.
@@ -62,6 +62,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Juergen Hoeller
  * @since 3.1
  */
+// 解析注解@PathVariable而且不是Map类型的参数（Map类型则使用PathVariableMapMethodArgumentResolver解析）
 public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver
 		implements UriComponentsContributor {
 
@@ -91,30 +92,44 @@ public class PathVariableMethodArgumentResolver extends AbstractNamedValueMethod
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected Object resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {
-		Map<String, String> uriTemplateVars = (Map<String, String>) request.getAttribute(
-				HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
-		return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
-	}
+        /**
+         * 直接从request里获取的HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE属性的值，
+         * 这个值是在RequestMappingInfoHandlerMapping中的handleMatch中设置的,
+         * 也就是在HandlerMapping中根据lookupPath找到处理请求的处理器后设置的
+         *
+         * @author yangwenxin
+         * @date 2023-07-27 14:03
+         */
+        Map<String, String> uriTemplateVars = (Map<String, String>) request.getAttribute(
+                HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
+        return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
+    }
 
-	@Override
-	protected void handleMissingValue(String name, MethodParameter parameter) throws ServletRequestBindingException {
-		throw new MissingPathVariableException(name, parameter);
-	}
+    @Override
+    protected void handleMissingValue(String name, MethodParameter parameter) throws ServletRequestBindingException {
+        throw new MissingPathVariableException(name, parameter);
+    }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	protected void handleResolvedValue(@Nullable Object arg, String name, MethodParameter parameter,
-			@Nullable ModelAndViewContainer mavContainer, NativeWebRequest request) {
+    /**
+     * 功能是将PathVariable设置到request的属性中，方便以后使用
+     *
+     * @author yangwenxin
+     * @date 2023-07-27 14:15
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void handleResolvedValue(@Nullable Object arg, String name, MethodParameter parameter,
+                                       @Nullable ModelAndViewContainer mavContainer, NativeWebRequest request) {
 
-		String key = View.PATH_VARIABLES;
-		int scope = RequestAttributes.SCOPE_REQUEST;
-		Map<String, Object> pathVars = (Map<String, Object>) request.getAttribute(key, scope);
-		if (pathVars == null) {
-			pathVars = new HashMap<>();
-			request.setAttribute(key, pathVars, scope);
-		}
-		pathVars.put(name, arg);
-	}
+        String key = View.PATH_VARIABLES;
+        int scope = RequestAttributes.SCOPE_REQUEST;
+        Map<String, Object> pathVars = (Map<String, Object>) request.getAttribute(key, scope);
+        if (pathVars == null) {
+            pathVars = new HashMap<>();
+            request.setAttribute(key, pathVars, scope);
+        }
+        pathVars.put(name, arg);
+    }
 
 	@Override
 	public void contributeMethodArgument(MethodParameter parameter, Object value,

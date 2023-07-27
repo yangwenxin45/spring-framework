@@ -32,6 +32,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解析SessionStatus类型参数，直接返回mavContainer中的SessionStatus
 public class SessionStatusMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

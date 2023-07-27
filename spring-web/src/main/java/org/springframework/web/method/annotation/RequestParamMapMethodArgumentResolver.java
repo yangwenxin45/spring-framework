@@ -16,9 +16,6 @@
 
 package org.springframework.web.method.annotation;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.LinkedMultiValueMap;
@@ -29,6 +26,9 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Resolves {@link Map} method arguments annotated with an @{@link RequestParam}
@@ -46,6 +46,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @since 3.1
  * @see RequestParamMethodArgumentResolver
  */
+// 解析注解了@RequestParam的Map类型，而且注解中有value的参数
 public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

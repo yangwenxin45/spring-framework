@@ -37,42 +37,49 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+
+/**
+ * 解析Model类型参数，直接返回mavContainer中的model
+ * <p>
+ * 处理Model类型的返回值，将Model中的值添加到mavContainer的Model中
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 15:10
+ */
 public class ModelMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return Model.class.isAssignableFrom(parameter.getParameterType());
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return Model.class.isAssignableFrom(parameter.getParameterType());
+    }
 
-	@Override
-	@Nullable
-	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    @Override
+    @Nullable
+    public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		Assert.state(mavContainer != null, "ModelAndViewContainer is required for model exposure");
-		return mavContainer.getModel();
-	}
+        Assert.state(mavContainer != null, "ModelAndViewContainer is required for model exposure");
+        return mavContainer.getModel();
+    }
 
-	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
-		return Model.class.isAssignableFrom(returnType.getParameterType());
-	}
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        return Model.class.isAssignableFrom(returnType.getParameterType());
+    }
 
-	@Override
-	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+    @Override
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
+                                  ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
-		if (returnValue == null) {
-			return;
-		}
-		else if (returnValue instanceof Model) {
-			mavContainer.addAllAttributes(((Model) returnValue).asMap());
-		}
-		else {
-			// should not happen
-			throw new UnsupportedOperationException("Unexpected return type: " +
-					returnType.getParameterType().getName() + " in method: " + returnType.getMethod());
-		}
-	}
+        if (returnValue == null) {
+            return;
+        } else if (returnValue instanceof Model) {
+            mavContainer.addAllAttributes(((Model) returnValue).asMap());
+        } else {
+            // should not happen
+            throw new UnsupportedOperationException("Unexpected return type: " +
+                    returnType.getParameterType().getName() + " in method: " + returnType.getMethod());
+        }
+    }
 
 }

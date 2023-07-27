@@ -16,13 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.concurrent.Callable;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpStatus;
@@ -41,8 +34,15 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.View;
 import org.springframework.web.util.NestedServletException;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.concurrent.Callable;
+
 /**
- * Extends {@link InvocableHandlerMethod} with the ability to handle return
+ * Extends {@link org.springframework.web.method.support.InvocableHandlerMethod} with the ability to handle return
  * values through a registered {@link HandlerMethodReturnValueHandler} and
  * also supports setting the response status based on a method-level
  * {@code @ResponseStatus} annotation.
@@ -56,6 +56,16 @@ import org.springframework.web.util.NestedServletException;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
+ */
+
+/**
+ * ServletInvocableHandlerMethod继承自InvocableHandlerMethod，在父类基础上增加了三个功能：
+ * 1. 对@ResponseStatus注解的支持
+ * 2. 对返回值的处理
+ * 3. 对异步处理结果的处理
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 10:59
  */
 public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 
@@ -97,18 +107,19 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 * @param providedArgs "given" arguments matched by type (not resolved)
 	 */
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
-			Object... providedArgs) throws Exception {
+								Object... providedArgs) throws Exception {
 
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
 		setResponseStatus(webRequest);
 
+		// 判断返回值是不是null
 		if (returnValue == null) {
+			// request的notModified为真、注解了@ResponseStatus和mavContainer的requestHandled为true这三项中有一项成立
 			if (isRequestNotModified(webRequest) || getResponseStatus() != null || mavContainer.isRequestHandled()) {
 				mavContainer.setRequestHandled(true);
 				return;
 			}
-		}
-		else if (StringUtils.hasText(getResponseStatusReason())) {
+		} else if (StringUtils.hasText(getResponseStatusReason())) {
 			mavContainer.setRequestHandled(true);
 			return;
 		}
@@ -118,8 +129,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 		try {
 			this.returnValueHandlers.handleReturnValue(
 					returnValue, getReturnValueType(returnValue), mavContainer, webRequest);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			if (logger.isTraceEnabled()) {
 				logger.trace(getReturnValueHandlingErrorMessage("Error handling return value", returnValue), ex);
 			}
@@ -141,13 +151,13 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 			String reason = getResponseStatusReason();
 			if (StringUtils.hasText(reason)) {
 				response.sendError(status.value(), reason);
-			}
-			else {
+			} else {
 				response.setStatus(status.value());
 			}
 		}
 
 		// To be picked up by RedirectView
+		// 设置到request的属性，为了在redirect中使用
 		webRequest.getRequest().setAttribute(View.RESPONSE_STATUS_ATTRIBUTE, status);
 	}
 
@@ -194,8 +204,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 			super((Callable<Object>) () -> {
 				if (result instanceof Exception) {
 					throw (Exception) result;
-				}
-				else if (result instanceof Throwable) {
+				} else if (result instanceof Throwable) {
 					throw new NestedServletException("Async processing failed", (Throwable) result);
 				}
 				return result;

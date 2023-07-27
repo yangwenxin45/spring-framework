@@ -16,10 +16,6 @@
 
 package org.springframework.web.method.support;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.ui.Model;
@@ -27,6 +23,10 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.support.BindingAwareModelMap;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.bind.support.SimpleSessionStatus;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Records model and view related decisions made by
@@ -49,17 +49,22 @@ import org.springframework.web.bind.support.SimpleSessionStatus;
  */
 public class ModelAndViewContainer {
 
-	private boolean ignoreDefaultModelOnRedirect = false;
+    // 如果为true则在处理器返回redirect视图时一定不使用defaultModel
+    private boolean ignoreDefaultModelOnRedirect = false;
 
-	@Nullable
-	private Object view;
+    // 视图，可以是实际视图也可以是String类型的逻辑视图
+    @Nullable
+    private Object view;
 
-	private final ModelMap defaultModel = new BindingAwareModelMap();
+    // 默认使用的Model
+    private final ModelMap defaultModel = new BindingAwareModelMap();
 
-	@Nullable
-	private ModelMap redirectModel;
+    // redirect类型的Model
+    @Nullable
+    private ModelMap redirectModel;
 
-	private boolean redirectModelScenario = false;
+    // 处理器返回redirect视图的标志，是在ReturnValueHandler中设置的
+    private boolean redirectModelScenario = false;
 
 	@Nullable
 	private HttpStatus status;
@@ -68,9 +73,11 @@ public class ModelAndViewContainer {
 
 	private final Set<String> bindingDisabled = new HashSet<>(4);
 
-	private final SessionStatus sessionStatus = new SimpleSessionStatus();
+    // 用于设置SessionAttribute使用完的标志
+    private final SessionStatus sessionStatus = new SimpleSessionStatus();
 
-	private boolean requestHandled = false;
+    // 请求是否已经处理完成的标志
+    private boolean requestHandled = false;
 
 
 	/**
@@ -152,6 +159,7 @@ public class ModelAndViewContainer {
 	/**
 	 * Whether to use the default model or the redirect model.
 	 */
+    // 返回default视图的判断条件
 	private boolean useDefaultModel() {
 		return (!this.redirectModelScenario || (this.redirectModel == null && !this.ignoreDefaultModelOnRedirect));
 	}

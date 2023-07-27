@@ -16,13 +16,6 @@
 
 package org.springframework.web.method.annotation;
 
-import java.beans.PropertyEditor;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.MethodParameter;
@@ -33,7 +26,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ValueConstants;
@@ -42,46 +34,59 @@ import org.springframework.web.method.support.UriComponentsContributor;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
-import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.multipart.support.MultipartResolutionDelegate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Resolves method arguments annotated with @{@link RequestParam}, arguments of
- * type {@link MultipartFile} in conjunction with Spring's {@link MultipartResolver}
+ * Resolves method arguments annotated with @{@link org.springframework.web.bind.annotation.RequestParam}, arguments of
+ * type {@link org.springframework.web.multipart.MultipartFile} in conjunction with Spring's {@link org.springframework.web.multipart.MultipartResolver}
  * abstraction, and arguments of type {@code javax.servlet.http.Part} in conjunction
  * with Servlet 3.0 multipart requests. This resolver can also be created in default
  * resolution mode in which simple types (int, long, etc.) not annotated with
- * {@link RequestParam @RequestParam} are also treated as request parameters with
+ * {@link org.springframework.web.bind.annotation.RequestParam @RequestParam} are also treated as request parameters with
  * the parameter name derived from the argument name.
  *
  * <p>If the method parameter type is {@link Map}, the name specified in the
  * annotation is used to resolve the request parameter String value. The value is
  * then converted to a {@link Map} via type conversion assuming a suitable
- * {@link Converter} or {@link PropertyEditor} has been registered.
+ * {@link Converter} or {@link java.beans.PropertyEditor} has been registered.
  * Or if a request parameter name is not specified the
- * {@link RequestParamMapMethodArgumentResolver} is used instead to provide
+ * {@link org.springframework.web.method.annotation.RequestParamMapMethodArgumentResolver} is used instead to provide
  * access to all request parameters in the form of a map.
  *
- * <p>A {@link WebDataBinder} is invoked to apply type conversion to resolved request
+ * <p>A {@link org.springframework.web.bind.WebDataBinder} is invoked to apply type conversion to resolved request
  * header values that don't yet match the method parameter type.
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Brian Clozel
+ * @see org.springframework.web.method.annotation.RequestParamMapMethodArgumentResolver
  * @since 3.1
- * @see RequestParamMapMethodArgumentResolver
+ */
+
+/**
+ * 可以解析注解了@RequestParam的参数、MultipartFile类型的参数和没有注解的通用类型的参数
+ * 如果是注解了@RequestParam的Map类型的参数、则注解必须有name值（否则使用RequestParamMapMethodArgumentResolver解析）
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 11:33
  */
 public class RequestParamMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver
-		implements UriComponentsContributor {
+        implements UriComponentsContributor {
 
-	private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
+    private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
-	private final boolean useDefaultResolution;
+    private final boolean useDefaultResolution;
 
 
-	/**
+    /**
 	 * Create a new {@link RequestParamMethodArgumentResolver} instance.
 	 * @param useDefaultResolution in default resolution mode a method argument
 	 * that is a simple type, as defined in {@link BeanUtils#isSimpleProperty},

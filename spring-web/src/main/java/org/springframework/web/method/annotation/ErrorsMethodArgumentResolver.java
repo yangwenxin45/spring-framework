@@ -34,39 +34,48 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * <p>An {@code Errors} method argument is expected to appear immediately after
  * the model attribute in the method signature. It is resolved by expecting the
  * last two attributes added to the model to be the model attribute and its
- * {@link BindingResult}.
+ * {@link org.springframework.validation.BindingResult}.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
  */
+
+/**
+ * 解析Errors类型的参数（一般是Errors或BindingResult）
+ * 当一个参数绑定出现异常时会自动将异常设置到其相邻的下一个Errors类型的参数，
+ * 设置方法就是使用了这个解析器，内部是直接从model中获取的
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 11:35
+ */
 public class ErrorsMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		Class<?> paramType = parameter.getParameterType();
-		return Errors.class.isAssignableFrom(paramType);
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        Class<?> paramType = parameter.getParameterType();
+        return Errors.class.isAssignableFrom(paramType);
+    }
 
-	@Override
-	@Nullable
-	public Object resolveArgument(MethodParameter parameter,
-			@Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
-			@Nullable WebDataBinderFactory binderFactory) throws Exception {
+    @Override
+    @Nullable
+    public Object resolveArgument(MethodParameter parameter,
+                                  @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest,
+                                  @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		Assert.state(mavContainer != null,
-				"Errors/BindingResult argument only supported on regular handler methods");
+        Assert.state(mavContainer != null,
+                "Errors/BindingResult argument only supported on regular handler methods");
 
-		ModelMap model = mavContainer.getModel();
-		String lastKey = CollectionUtils.lastElement(model.keySet());
-		if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
-			return model.get(lastKey);
-		}
+        ModelMap model = mavContainer.getModel();
+        String lastKey = CollectionUtils.lastElement(model.keySet());
+        if (lastKey != null && lastKey.startsWith(BindingResult.MODEL_KEY_PREFIX)) {
+            return model.get(lastKey);
+        }
 
-		throw new IllegalStateException(
-				"An Errors/BindingResult argument is expected to be declared immediately after " +
-				"the model attribute, the @RequestBody or the @RequestPart arguments " +
-				"to which they apply: " + parameter.getMethod());
-	}
+        throw new IllegalStateException(
+                "An Errors/BindingResult argument is expected to be declared immediately after " +
+                        "the model attribute, the @RequestBody or the @RequestPart arguments " +
+                        "to which they apply: " + parameter.getMethod());
+    }
 
 }

@@ -16,8 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.util.Map;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.ui.Model;
@@ -30,6 +28,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
+
+import java.util.Map;
 
 /**
  * Resolves method arguments of type {@link RedirectAttributes}.
@@ -44,6 +44,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解析RedirectAttributes类型的参数，新建RedirectAttributesModelMap类型的RedirectAttributes并设置到mavContainer中，然后返回给我们的参数
 public class RedirectAttributesMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

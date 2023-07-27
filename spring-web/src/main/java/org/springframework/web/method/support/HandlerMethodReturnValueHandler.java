@@ -25,8 +25,18 @@ import org.springframework.web.context.request.NativeWebRequest;
  * handler method .
  *
  * @author Arjen Poutsma
+ * @see org.springframework.web.method.support.HandlerMethodArgumentResolver
  * @since 3.1
- * @see HandlerMethodArgumentResolver
+ */
+
+/**
+ * HandlerMethodReturnValueHandler用在ServletInvocableHandlerMethod中，作用是处理处理器执行后的返回值：
+ * 1. 将相应参数添加到Model
+ * 2. 设置View
+ * 3. 如果请求已经处理完则设置ModelAndViewContainer的requestHandled为true
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 14:41
  */
 public interface HandlerMethodReturnValueHandler {
 
@@ -53,6 +63,6 @@ public interface HandlerMethodReturnValueHandler {
 	 * @throws Exception if the return value handling results in an error
 	 */
 	void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception;
+						   ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception;
 
 }

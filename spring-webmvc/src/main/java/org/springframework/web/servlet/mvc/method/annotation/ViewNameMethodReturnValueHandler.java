@@ -22,7 +22,6 @@ import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.RequestToViewNameTranslator;
 
 /**
  * Handles return values of types {@code void} and {@code String} interpreting them
@@ -31,7 +30,7 @@ import org.springframework.web.servlet.RequestToViewNameTranslator;
  *
  * <p>A {@code null} return value, either due to a {@code void} return type or
  * as the actual return value is left as-is allowing the configured
- * {@link RequestToViewNameTranslator} to select a view name by convention.
+ * {@link org.springframework.web.servlet.RequestToViewNameTranslator} to select a view name by convention.
  *
  * <p>A String return value can be interpreted in more than one ways depending on
  * the presence of annotations like {@code @ModelAttribute} or {@code @ResponseBody}.
@@ -41,6 +40,14 @@ import org.springframework.web.servlet.RequestToViewNameTranslator;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @since 3.1
+ */
+
+/**
+ * 处理void和String类型返回值，如果返回值为空则直接返回，否则将返回值通过mavContainer的setViewName方法设置到其View中，
+ * 并判断返回值是不是redirect类型，如果是则设置mavContainer的redirectModelScenario为true
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 15:15
  */
 public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
@@ -76,7 +83,7 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+								  ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
 		if (returnValue instanceof CharSequence) {
 			String viewName = returnValue.toString();
@@ -84,9 +91,9 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 			if (isRedirectViewName(viewName)) {
 				mavContainer.setRedirectModelScenario(true);
 			}
-		}
-		else if (returnValue != null) {
+		} else if (returnValue != null) {
 			// should not happen
+			// 既不为null也不是String类型则抛异常
 			throw new UnsupportedOperationException("Unexpected return type: " +
 					returnType.getParameterType().getName() + " in method: " + returnType.getMethod());
 		}
@@ -101,6 +108,7 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 	 * reference; "false" otherwise.
 	 */
 	protected boolean isRedirectViewName(String viewName) {
+		// 首先使用redirectPatterns判断是否匹配，如果都不匹配在看是不是以"redirect:"开头
 		return (PatternMatchUtils.simpleMatch(this.redirectPatterns, viewName) || viewName.startsWith("redirect:"));
 	}
 

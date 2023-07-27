@@ -42,6 +42,7 @@ import org.springframework.web.servlet.View;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 处理ModelAndView类型的返回值，将返回值中的View和Model设置到mavContainer中
 public class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Nullable

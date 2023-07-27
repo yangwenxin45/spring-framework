@@ -16,10 +16,6 @@
 
 package org.springframework.web.method.annotation;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.servlet.ServletException;
-
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.config.BeanExpressionContext;
@@ -36,6 +32,10 @@ import org.springframework.web.context.request.RequestScope;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import javax.servlet.ServletException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Abstract base class for resolving method arguments from a named value.
  * Request parameters, request headers, and path variables are examples of named
@@ -51,7 +51,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  *
  * <p>A default value string can contain ${...} placeholders and Spring Expression
  * Language #{...} expressions. For this to work a
- * {@link ConfigurableBeanFactory} must be supplied to the class constructor.
+ * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory} must be supplied to the class constructor.
  *
  * <p>A {@link WebDataBinder} is created to apply type conversion to the resolved
  * argument value if it doesn't match the method parameter type.
@@ -61,224 +61,247 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Juergen Hoeller
  * @since 3.1
  */
+
+/**
+ * 解析namedValue类型的参数的基类
+ * 主要功能有：
+ * 1. 获取name
+ * 2. resolveDefaultValue
+ * 3. handleMissingValue、handleNullValue
+ * 4. 调用模板方法resolveName、handleResolvedValue具体解析
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 11:22
+ */
 public abstract class AbstractNamedValueMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-	@Nullable
-	private final ConfigurableBeanFactory configurableBeanFactory;
+    @Nullable
+    private final ConfigurableBeanFactory configurableBeanFactory;
 
-	@Nullable
-	private final BeanExpressionContext expressionContext;
+    @Nullable
+    private final BeanExpressionContext expressionContext;
 
-	private final Map<MethodParameter, NamedValueInfo> namedValueInfoCache = new ConcurrentHashMap<>(256);
-
-
-	public AbstractNamedValueMethodArgumentResolver() {
-		this.configurableBeanFactory = null;
-		this.expressionContext = null;
-	}
-
-	/**
-	 * Create a new {@link AbstractNamedValueMethodArgumentResolver} instance.
-	 * @param beanFactory a bean factory to use for resolving ${...} placeholder
-	 * and #{...} SpEL expressions in default values, or {@code null} if default
-	 * values are not expected to contain expressions
-	 */
-	public AbstractNamedValueMethodArgumentResolver(@Nullable ConfigurableBeanFactory beanFactory) {
-		this.configurableBeanFactory = beanFactory;
-		this.expressionContext =
-				(beanFactory != null ? new BeanExpressionContext(beanFactory, new RequestScope()) : null);
-	}
+    private final Map<MethodParameter, NamedValueInfo> namedValueInfoCache = new ConcurrentHashMap<>(256);
 
 
-	@Override
-	@Nullable
-	public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    public AbstractNamedValueMethodArgumentResolver() {
+        this.configurableBeanFactory = null;
+        this.expressionContext = null;
+    }
 
-		NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
-		MethodParameter nestedParameter = parameter.nestedIfOptional();
-
-		Object resolvedName = resolveStringValue(namedValueInfo.name);
-		if (resolvedName == null) {
-			throw new IllegalArgumentException(
-					"Specified name must not resolve to null: [" + namedValueInfo.name + "]");
-		}
-
-		Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);
-		if (arg == null) {
-			if (namedValueInfo.defaultValue != null) {
-				arg = resolveStringValue(namedValueInfo.defaultValue);
-			}
-			else if (namedValueInfo.required && !nestedParameter.isOptional()) {
-				handleMissingValue(namedValueInfo.name, nestedParameter, webRequest);
-			}
-			arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());
-		}
-		else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
-			arg = resolveStringValue(namedValueInfo.defaultValue);
-		}
-
-		if (binderFactory != null) {
-			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
-			try {
-				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
-			}
-			catch (ConversionNotSupportedException ex) {
-				throw new MethodArgumentConversionNotSupportedException(arg, ex.getRequiredType(),
-						namedValueInfo.name, parameter, ex.getCause());
-			}
-			catch (TypeMismatchException ex) {
-				throw new MethodArgumentTypeMismatchException(arg, ex.getRequiredType(),
-						namedValueInfo.name, parameter, ex.getCause());
-			}
-		}
-
-		handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);
-
-		return arg;
-	}
-
-	/**
-	 * Obtain the named value for the given method parameter.
-	 */
-	private NamedValueInfo getNamedValueInfo(MethodParameter parameter) {
-		NamedValueInfo namedValueInfo = this.namedValueInfoCache.get(parameter);
-		if (namedValueInfo == null) {
-			namedValueInfo = createNamedValueInfo(parameter);
-			namedValueInfo = updateNamedValueInfo(parameter, namedValueInfo);
-			this.namedValueInfoCache.put(parameter, namedValueInfo);
-		}
-		return namedValueInfo;
-	}
-
-	/**
-	 * Create the {@link NamedValueInfo} object for the given method parameter. Implementations typically
-	 * retrieve the method annotation by means of {@link MethodParameter#getParameterAnnotation(Class)}.
-	 * @param parameter the method parameter
-	 * @return the named value information
-	 */
-	protected abstract NamedValueInfo createNamedValueInfo(MethodParameter parameter);
-
-	/**
-	 * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
-	 */
-	private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
-		String name = info.name;
-		if (info.name.isEmpty()) {
-			name = parameter.getParameterName();
-			if (name == null) {
-				throw new IllegalArgumentException(
-						"Name for argument of type [" + parameter.getNestedParameterType().getName() +
-						"] not specified, and parameter name information not found in class file either.");
-			}
-		}
-		String defaultValue = (ValueConstants.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue);
-		return new NamedValueInfo(name, info.required, defaultValue);
-	}
-
-	/**
-	 * Resolve the given annotation-specified value,
-	 * potentially containing placeholders and expressions.
-	 */
-	@Nullable
-	private Object resolveStringValue(String value) {
-		if (this.configurableBeanFactory == null || this.expressionContext == null) {
-			return value;
-		}
-		String placeholdersResolved = this.configurableBeanFactory.resolveEmbeddedValue(value);
-		BeanExpressionResolver exprResolver = this.configurableBeanFactory.getBeanExpressionResolver();
-		if (exprResolver == null) {
-			return value;
-		}
-		return exprResolver.evaluate(placeholdersResolved, this.expressionContext);
-	}
-
-	/**
-	 * Resolve the given parameter type and value name into an argument value.
-	 * @param name the name of the value being resolved
-	 * @param parameter the method parameter to resolve to an argument value
-	 * (pre-nested in case of a {@link java.util.Optional} declaration)
-	 * @param request the current request
-	 * @return the resolved argument (may be {@code null})
-	 * @throws Exception in case of errors
-	 */
-	@Nullable
-	protected abstract Object resolveName(String name, MethodParameter parameter, NativeWebRequest request)
-			throws Exception;
-
-	/**
-	 * Invoked when a named value is required, but {@link #resolveName(String, MethodParameter, NativeWebRequest)}
-	 * returned {@code null} and there is no default value. Subclasses typically throw an exception in this case.
-	 * @param name the name for the value
-	 * @param parameter the method parameter
-	 * @param request the current request
-	 * @since 4.3
-	 */
-	protected void handleMissingValue(String name, MethodParameter parameter, NativeWebRequest request)
-			throws Exception {
-
-		handleMissingValue(name, parameter);
-	}
-
-	/**
-	 * Invoked when a named value is required, but {@link #resolveName(String, MethodParameter, NativeWebRequest)}
-	 * returned {@code null} and there is no default value. Subclasses typically throw an exception in this case.
-	 * @param name the name for the value
-	 * @param parameter the method parameter
-	 */
-	protected void handleMissingValue(String name, MethodParameter parameter) throws ServletException {
-		throw new ServletRequestBindingException("Missing argument '" + name +
-				"' for method parameter of type " + parameter.getNestedParameterType().getSimpleName());
-	}
-
-	/**
-	 * A {@code null} results in a {@code false} value for {@code boolean}s or an exception for other primitives.
-	 */
-	@Nullable
-	private Object handleNullValue(String name, @Nullable Object value, Class<?> paramType) {
-		if (value == null) {
-			if (Boolean.TYPE.equals(paramType)) {
-				return Boolean.FALSE;
-			}
-			else if (paramType.isPrimitive()) {
-				throw new IllegalStateException("Optional " + paramType.getSimpleName() + " parameter '" + name +
-						"' is present but cannot be translated into a null value due to being declared as a " +
-						"primitive type. Consider declaring it as object wrapper for the corresponding primitive type.");
-			}
-		}
-		return value;
-	}
-
-	/**
-	 * Invoked after a value is resolved.
-	 * @param arg the resolved argument value
-	 * @param name the argument name
-	 * @param parameter the argument parameter type
-	 * @param mavContainer the {@link ModelAndViewContainer} (may be {@code null})
-	 * @param webRequest the current request
-	 */
-	protected void handleResolvedValue(@Nullable Object arg, String name, MethodParameter parameter,
-			@Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
-	}
+    /**
+     * Create a new {@link AbstractNamedValueMethodArgumentResolver} instance.
+     * @param beanFactory a bean factory to use for resolving ${...} placeholder
+     * and #{...} SpEL expressions in default values, or {@code null} if default
+     * values are not expected to contain expressions
+     */
+    public AbstractNamedValueMethodArgumentResolver(@Nullable ConfigurableBeanFactory beanFactory) {
+        this.configurableBeanFactory = beanFactory;
+        this.expressionContext =
+                (beanFactory != null ? new BeanExpressionContext(beanFactory, new RequestScope()) : null);
+    }
 
 
-	/**
-	 * Represents the information about a named value, including name, whether it's required and a default value.
-	 */
-	protected static class NamedValueInfo {
+    @Override
+    @Nullable
+    public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+                                        NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		private final String name;
+        // 根据参数类型获取NamedValueInfo
+        NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
+        MethodParameter nestedParameter = parameter.nestedIfOptional();
 
-		private final boolean required;
+        Object resolvedName = resolveStringValue(namedValueInfo.name);
+        if (resolvedName == null) {
+            throw new IllegalArgumentException(
+                    "Specified name must not resolve to null: [" + namedValueInfo.name + "]");
+        }
 
-		@Nullable
-		private final String defaultValue;
+        // 具体解析参数，是模板方法，在子类中实现
+        Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);
+        // 如果没有解析到参数
+        if (arg == null) {
+            if (namedValueInfo.defaultValue != null) {
+                // 根据NamedValueInfo里的defaultValue设置默认值，如果包含占位符会将其设置为相应的值
+                arg = resolveStringValue(namedValueInfo.defaultValue);
+            } else if (namedValueInfo.required && !nestedParameter.isOptional()) {
+                // 如果参数是必须存在的，也就是NamedValueInfo的required为true，但是没有解析出参数，而且也没有默认值，就会调用这个方法
+                handleMissingValue(namedValueInfo.name, nestedParameter, webRequest);
+            }
+            // 如果解析结果为null，而且也没有默认值，并且handleMissingValue没调用或者调用了但没抛异常的情况下才会执行
+            arg = handleNullValue(namedValueInfo.name, arg, nestedParameter.getNestedParameterType());
+        } else if ("".equals(arg) && namedValueInfo.defaultValue != null) {
+            arg = resolveStringValue(namedValueInfo.defaultValue);
+        }
 
-		public NamedValueInfo(String name, boolean required, @Nullable String defaultValue) {
-			this.name = name;
-			this.required = required;
-			this.defaultValue = defaultValue;
-		}
-	}
+        // 如果binderFactory不为空，则用它创建binder并转换解析出的参数（如果需要转换）
+        if (binderFactory != null) {
+            WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
+            try {
+                arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
+            } catch (ConversionNotSupportedException ex) {
+                throw new MethodArgumentConversionNotSupportedException(arg, ex.getRequiredType(),
+                        namedValueInfo.name, parameter, ex.getCause());
+            } catch (TypeMismatchException ex) {
+                throw new MethodArgumentTypeMismatchException(arg, ex.getRequiredType(),
+                        namedValueInfo.name, parameter, ex.getCause());
+            }
+        }
+
+        // 对解析出的参数进行后置处理
+        handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);
+
+        return arg;
+    }
+
+    /**
+     * Obtain the named value for the given method parameter.
+     */
+    private NamedValueInfo getNamedValueInfo(MethodParameter parameter) {
+        NamedValueInfo namedValueInfo = this.namedValueInfoCache.get(parameter);
+        if (namedValueInfo == null) {
+            namedValueInfo = createNamedValueInfo(parameter);
+            namedValueInfo = updateNamedValueInfo(parameter, namedValueInfo);
+            this.namedValueInfoCache.put(parameter, namedValueInfo);
+        }
+        return namedValueInfo;
+    }
+
+    /**
+     * Create the {@link NamedValueInfo} object for the given method parameter. Implementations typically
+     * retrieve the method annotation by means of {@link MethodParameter#getParameterAnnotation(Class)}.
+     * @param parameter the method parameter
+     * @return the named value information
+     */
+    protected abstract NamedValueInfo createNamedValueInfo(MethodParameter parameter);
+
+    /**
+     * Create a new NamedValueInfo based on the given NamedValueInfo with sanitized values.
+     */
+    private NamedValueInfo updateNamedValueInfo(MethodParameter parameter, NamedValueInfo info) {
+        String name = info.name;
+        // 如果name为空则使用parameter的name
+        if (info.name.isEmpty()) {
+            name = parameter.getParameterName();
+            if (name == null) {
+                throw new IllegalArgumentException(
+                        "Name for argument of type [" + parameter.getNestedParameterType().getName() +
+                                "] not specified, and parameter name information not found in class file either.");
+            }
+        }
+        // 如果默认值是代表没有的ValueConstants.DEFAULT_NONE类型则设置为null
+        String defaultValue = (ValueConstants.DEFAULT_NONE.equals(info.defaultValue) ? null : info.defaultValue);
+        return new NamedValueInfo(name, info.required, defaultValue);
+    }
+
+    /**
+     * Resolve the given annotation-specified value,
+     * potentially containing placeholders and expressions.
+     */
+    @Nullable
+    private Object resolveStringValue(String value) {
+        if (this.configurableBeanFactory == null || this.expressionContext == null) {
+            return value;
+        }
+        String placeholdersResolved = this.configurableBeanFactory.resolveEmbeddedValue(value);
+        BeanExpressionResolver exprResolver = this.configurableBeanFactory.getBeanExpressionResolver();
+        if (exprResolver == null) {
+            return value;
+        }
+        return exprResolver.evaluate(placeholdersResolved, this.expressionContext);
+    }
+
+    /**
+     * Resolve the given parameter type and value name into an argument value.
+     * @param name the name of the value being resolved
+     * @param parameter the method parameter to resolve to an argument value
+     * (pre-nested in case of a {@link java.util.Optional} declaration)
+     * @param request the current request
+     * @return the resolved argument (may be {@code null})
+     * @throws Exception in case of errors
+     */
+    @Nullable
+    protected abstract Object resolveName(String name, MethodParameter parameter, NativeWebRequest request)
+            throws Exception;
+
+    /**
+     * Invoked when a named value is required, but {@link #resolveName(String, MethodParameter, NativeWebRequest)}
+     * returned {@code null} and there is no default value. Subclasses typically throw an exception in this case.
+     * @param name the name for the value
+     * @param parameter the method parameter
+     * @param request the current request
+     * @since 4.3
+     */
+    protected void handleMissingValue(String name, MethodParameter parameter, NativeWebRequest request)
+            throws Exception {
+
+        handleMissingValue(name, parameter);
+    }
+
+    /**
+     * Invoked when a named value is required, but {@link #resolveName(String, MethodParameter, NativeWebRequest)}
+     * returned {@code null} and there is no default value. Subclasses typically throw an exception in this case.
+     * @param name the name for the value
+     * @param parameter the method parameter
+     */
+    protected void handleMissingValue(String name, MethodParameter parameter) throws ServletException {
+        throw new ServletRequestBindingException("Missing argument '" + name +
+                "' for method parameter of type " + parameter.getNestedParameterType().getSimpleName());
+    }
+
+    /**
+     * A {@code null} results in a {@code false} value for {@code boolean}s or an exception for other primitives.
+     */
+    @Nullable
+    private Object handleNullValue(String name, @Nullable Object value, Class<?> paramType) {
+        if (value == null) {
+            // 如果是布尔类型，则给它设置为false
+            if (Boolean.TYPE.equals(paramType)) {
+                return Boolean.FALSE;
+            }
+            // 如果是其他原始的类型，则抛出异常
+            else if (paramType.isPrimitive()) {
+                throw new IllegalStateException("Optional " + paramType.getSimpleName() + " parameter '" + name +
+                        "' is present but cannot be translated into a null value due to being declared as a " +
+                        "primitive type. Consider declaring it as object wrapper for the corresponding primitive type.");
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Invoked after a value is resolved.
+     * @param arg the resolved argument value
+     * @param name the argument name
+     * @param parameter the argument parameter type
+     * @param mavContainer the {@link ModelAndViewContainer} (may be {@code null})
+     * @param webRequest the current request
+     */
+    protected void handleResolvedValue(@Nullable Object arg, String name, MethodParameter parameter,
+                                       @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
+    }
+
+
+    /**
+     * Represents the information about a named value, including name, whether it's required and a default value.
+     */
+    protected static class NamedValueInfo {
+
+        // 参数名
+        private final String name;
+
+        // 是否存在
+        private final boolean required;
+
+        // 默认值
+        @Nullable
+        private final String defaultValue;
+
+        public NamedValueInfo(String name, boolean required, @Nullable String defaultValue) {
+            this.name = name;
+            this.required = required;
+            this.defaultValue = defaultValue;
+        }
+    }
 
 }

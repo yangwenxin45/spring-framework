@@ -16,9 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
@@ -28,6 +25,9 @@ import org.springframework.web.method.annotation.AbstractCookieValueMethodArgume
 import org.springframework.web.util.UrlPathHelper;
 import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * An {@link org.springframework.web.method.annotation.AbstractCookieValueMethodArgumentResolver}
  * that resolves cookie values from an {@link HttpServletRequest}.
@@ -35,6 +35,7 @@ import org.springframework.web.util.WebUtils;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 实现resolveName方法，具体解析cookieValue
 public class ServletCookieValueMethodArgumentResolver extends AbstractCookieValueMethodArgumentResolver {
 
 	private UrlPathHelper urlPathHelper = UrlPathHelper.defaultInstance;

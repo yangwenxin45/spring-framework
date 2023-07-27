@@ -16,8 +16,6 @@
 
 package org.springframework.web.method.annotation;
 
-import java.util.Map;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -26,6 +24,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.util.Map;
 
 /**
  * Resolves {@link Map} method arguments and handles {@link Map} return values.
@@ -38,40 +38,47 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+
+/**
+ * 解析Map型参数（包括ModelMap类型），直接返回mavContainer中的model
+ * 处理Map类型的返回值，将Map添加到mavContainer的Model中
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 15:01
+ */
 public class MapMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return Map.class.isAssignableFrom(parameter.getParameterType());
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return Map.class.isAssignableFrom(parameter.getParameterType());
+    }
 
-	@Override
-	@Nullable
-	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    @Override
+    @Nullable
+    public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		Assert.state(mavContainer != null, "ModelAndViewContainer is required for model exposure");
-		return mavContainer.getModel();
-	}
+        Assert.state(mavContainer != null, "ModelAndViewContainer is required for model exposure");
+        return mavContainer.getModel();
+    }
 
-	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
-		return Map.class.isAssignableFrom(returnType.getParameterType());
-	}
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        return Map.class.isAssignableFrom(returnType.getParameterType());
+    }
 
-	@Override
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
+                                  ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
-		if (returnValue instanceof Map){
-			mavContainer.addAllAttributes((Map) returnValue);
-		}
-		else if (returnValue != null) {
-			// should not happen
-			throw new UnsupportedOperationException("Unexpected return type: " +
-					returnType.getParameterType().getName() + " in method: " + returnType.getMethod());
-		}
-	}
+        if (returnValue instanceof Map){
+            mavContainer.addAllAttributes((Map) returnValue);
+        } else if (returnValue != null) {
+            // should not happen
+            throw new UnsupportedOperationException("Unexpected return type: " +
+                    returnType.getParameterType().getName() + " in method: " + returnType.getMethod());
+        }
+    }
 
 }

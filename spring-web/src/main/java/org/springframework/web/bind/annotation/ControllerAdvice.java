@@ -16,15 +16,10 @@
 
 package org.springframework.web.bind.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
+
+import java.lang.annotation.*;
 
 /**
  * Specialization of {@link Component @Component} for classes that declare
@@ -78,6 +73,7 @@ public @interface ControllerAdvice {
 	 * @since 4.0
 	 * @see #basePackages()
 	 */
+    // basePackages的别名，表示配置基础包
 	@AliasFor("basePackages")
 	String[] value() default {};
 
@@ -103,6 +99,7 @@ public @interface ControllerAdvice {
 	 * that serves no purpose other than being referenced by this attribute.
 	 * @since 4.0
 	 */
+    // basePackages类型安全替代品，会扫描配置类所在包的所有类
 	Class<?>[] basePackageClasses() default {};
 
 	/**
@@ -111,6 +108,7 @@ public @interface ControllerAdvice {
 	 * will be assisted by the {@code @ControllerAdvice} annotated class.
 	 * @since 4.0
 	 */
+    // 指定具体的类
 	Class<?>[] assignableTypes() default {};
 
 	/**
@@ -121,6 +119,7 @@ public @interface ControllerAdvice {
 	 * like {@link RestController @RestController}.
 	 * @since 4.0
 	 */
+    // 指定类所包含的注解
 	Class<? extends Annotation>[] annotations() default {};
 
 }

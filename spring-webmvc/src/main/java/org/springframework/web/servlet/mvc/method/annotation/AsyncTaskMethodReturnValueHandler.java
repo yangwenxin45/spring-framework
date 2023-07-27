@@ -31,6 +31,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
+// 处理WebAsyncTask类型的返回值，用于异步请求，使用WebAsyncManager完成
 public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Nullable

@@ -16,17 +16,17 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import javax.servlet.ServletResponse;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import javax.servlet.ServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 
 /**
  * Resolves response-related method argument values of types:
@@ -41,6 +41,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Juergen Hoeller
  * @since 3.1
  */
+// 解析ServletResponse、OutputStream、Writer类型的参数
 public class ServletResponseMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

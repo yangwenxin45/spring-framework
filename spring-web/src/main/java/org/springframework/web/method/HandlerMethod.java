@@ -16,12 +16,8 @@
 
 package org.springframework.web.method;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.GenericTypeResolver;
@@ -33,6 +29,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
  * Encapsulates information about a handler method consisting of a
@@ -53,20 +52,31 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 public class HandlerMethod {
 
-	/** Logger that is available to subclasses */
-	protected final Log logger = LogFactory.getLog(getClass());
+    /**
+     * Logger that is available to subclasses
+     */
+    protected final Log logger = LogFactory.getLog(getClass());
 
-	private final Object bean;
+    private final Object bean;
 
-	@Nullable
-	private final BeanFactory beanFactory;
+    /**
+     * 主要用于新建HandlerMethod时传入的Handler（也就是bean属性）是String的情况
+     * 这时需要使用beanFactory根据传入的String作为beanName获取到对应的bean，并设置为Handler
+     *
+     * @author yangwenxin
+     * @date 2023-07-27 10:09
+     */
+    @Nullable
+    private final BeanFactory beanFactory;
 
-	private final Class<?> beanType;
+    private final Class<?> beanType;
 
-	private final Method method;
+    private final Method method;
 
-	private final Method bridgedMethod;
+    // 指如果method是bridgedMethod则设置为其所对应的原有方法，否则直接设置为method
+    private final Method bridgedMethod;
 
+	// 代表处理请求方法的参数
 	private final MethodParameter[] parameters;
 
 	@Nullable
@@ -304,7 +314,8 @@ public class HandlerMethod {
 	/**
 	 * If the provided instance contains a bean name rather than an object instance,
 	 * the bean name is resolved before a {@link HandlerMethod} is created and returned.
-	 */
+     */
+    // 如果Handler是String类型，将其变为容器中对应bean
 	public HandlerMethod createWithResolvedBean() {
 		Object handler = this.bean;
 		if (this.bean instanceof String) {

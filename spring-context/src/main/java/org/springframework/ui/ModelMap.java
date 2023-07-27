@@ -16,13 +16,13 @@
 
 package org.springframework.ui;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.springframework.core.Conventions;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Implementation of {@link java.util.Map} for use when building model data for use
@@ -124,6 +124,7 @@ public class ModelMap extends LinkedHashMap<String, Object> {
 	 * with existing objects of the same name taking precedence (i.e. not getting
 	 * replaced).
 	 */
+    // 合并属性的逻辑是如果原来的Model中不包含传入的属性则添加进去，如果原来Model中已经有了就不操作了
 	public ModelMap mergeAttributes(@Nullable Map<String, ?> attributes) {
 		if (attributes != null) {
 			attributes.forEach((key, value) -> {

@@ -36,32 +36,43 @@ import org.springframework.lang.Nullable;
  * @author Rossen Stoyanchev
  * @since 4.1
  */
+
+/**
+ * 实现了这个接口的类可以修改返回值直接作为ResponseBody类型的处理器的返回值
+ * 有两种类型的处理器会将返回值作为ResponseBody：
+ * 1. 返回值为HttpEntity类型
+ * 2. 返回值（或处理器方法）前注释了@ResponseBody
+ *
+ * @author yangwenxin
+ * @date 2023-07-26 13:54
+ */
 public interface ResponseBodyAdvice<T> {
 
-	/**
-	 * Whether this component supports the given controller method return type
-	 * and the selected {@code HttpMessageConverter} type.
-	 * @param returnType the return type
-	 * @param converterType the selected converter type
-	 * @return {@code true} if {@link #beforeBodyWrite} should be invoked;
-	 * {@code false} otherwise
-	 */
-	boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType);
+    /**
+     * Whether this component supports the given controller method return type
+     * and the selected {@code HttpMessageConverter} type.
+     *
+     * @param returnType    the return type
+     * @param converterType the selected converter type
+     * @return {@code true} if {@link #beforeBodyWrite} should be invoked;
+     * {@code false} otherwise
+     */
+    boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType);
 
-	/**
-	 * Invoked after an {@code HttpMessageConverter} is selected and just before
-	 * its write method is invoked.
-	 * @param body the body to be written
-	 * @param returnType the return type of the controller method
-	 * @param selectedContentType the content type selected through content negotiation
-	 * @param selectedConverterType the converter type selected to write to the response
-	 * @param request the current request
-	 * @param response the current response
-	 * @return the body that was passed in or a modified (possibly new) instance
-	 */
-	@Nullable
-	T beforeBodyWrite(@Nullable T body, MethodParameter returnType, MediaType selectedContentType,
-			Class<? extends HttpMessageConverter<?>> selectedConverterType,
-			ServerHttpRequest request, ServerHttpResponse response);
+    /**
+     * Invoked after an {@code HttpMessageConverter} is selected and just before
+     * its write method is invoked.
+     * @param body the body to be written
+     * @param returnType the return type of the controller method
+     * @param selectedContentType the content type selected through content negotiation
+     * @param selectedConverterType the converter type selected to write to the response
+     * @param request the current request
+     * @param response the current response
+     * @return the body that was passed in or a modified (possibly new) instance
+     */
+    @Nullable
+    T beforeBodyWrite(@Nullable T body, MethodParameter returnType, MediaType selectedContentType,
+                      Class<? extends HttpMessageConverter<?>> selectedConverterType,
+                      ServerHttpRequest request, ServerHttpResponse response);
 
 }

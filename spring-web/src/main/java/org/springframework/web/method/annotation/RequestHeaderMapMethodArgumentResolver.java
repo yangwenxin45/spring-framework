@@ -16,10 +16,6 @@
 
 package org.springframework.web.method.annotation;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.Nullable;
@@ -30,6 +26,10 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Resolves {@link Map} method arguments annotated with {@code @RequestHeader}.
@@ -44,6 +44,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解析注解了@RequestHeader的Map类型的参数
 public class RequestHeaderMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

@@ -16,9 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.util.concurrent.CompletionStage;
-import java.util.function.BiFunction;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -29,6 +26,9 @@ import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.util.concurrent.CompletionStage;
+import java.util.function.BiFunction;
+
 /**
  * Handler for return values of type {@link DeferredResult},
  * {@link ListenableFuture}, and {@link CompletionStage}.
@@ -36,6 +36,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.2
  */
+// 处理DeferredResult类型的返回值，用于异步请求，使用WebAsyncManager完成
 public class DeferredResultMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
 	@Override

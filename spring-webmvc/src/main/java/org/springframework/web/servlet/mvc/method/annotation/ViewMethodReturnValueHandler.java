@@ -21,7 +21,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.RequestToViewNameTranslator;
 import org.springframework.web.servlet.SmartView;
 import org.springframework.web.servlet.View;
 
@@ -29,7 +28,7 @@ import org.springframework.web.servlet.View;
  * Handles return values that are of type {@link View}.
  *
  * <p>A {@code null} return value is left as-is leaving it to the configured
- * {@link RequestToViewNameTranslator} to select a view name by convention.
+ * {@link org.springframework.web.servlet.RequestToViewNameTranslator} to select a view name by convention.
  *
  * <p>A {@link View} return type has a set purpose. Therefore this handler
  * should be configured ahead of handlers that support any return value type
@@ -38,6 +37,14 @@ import org.springframework.web.servlet.View;
  *
  * @author Rossen Stoyanchev
  * @since 3.1
+ */
+
+/**
+ * 处理View类型返回值，如果返回值为空直接返回，否则将返回值设置到mavContainer的View中，并判断返回值是不是redirect类型，
+ * 如果是则设置mavContainer的redirectModelScenario为true
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 15:12
  */
 public class ViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
 
@@ -48,7 +55,7 @@ public class ViewMethodReturnValueHandler implements HandlerMethodReturnValueHan
 
 	@Override
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
-			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
+								  ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
 		if (returnValue instanceof View) {
 			View view = (View) returnValue;
@@ -56,8 +63,7 @@ public class ViewMethodReturnValueHandler implements HandlerMethodReturnValueHan
 			if (view instanceof SmartView && ((SmartView) view).isRedirectView()) {
 				mavContainer.setRedirectModelScenario(true);
 			}
-		}
-		else if (returnValue != null) {
+		} else if (returnValue != null) {
 			// should not happen
 			throw new UnsupportedOperationException("Unexpected return type: " +
 					returnType.getParameterType().getName() + " in method: " + returnType.getMethod());

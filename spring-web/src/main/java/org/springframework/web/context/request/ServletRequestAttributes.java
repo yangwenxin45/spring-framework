@@ -68,7 +68,8 @@ public class ServletRequestAttributes extends AbstractRequestAttributes {
 	@Nullable
 	private volatile HttpSession session;
 
-	private final Map<String, Object> sessionAttributesToUpdate = new ConcurrentHashMap<>(1);
+    // 保存从session中获取过的值
+    private final Map<String, Object> sessionAttributesToUpdate = new ConcurrentHashMap<>(1);
 
 
 	/**
@@ -170,6 +171,7 @@ public class ServletRequestAttributes extends AbstractRequestAttributes {
 
 	@Override
 	public void setAttribute(String name, Object value, int scope) {
+        // 如果scope是SCOPE_REQUEST则会存储到request，否则存储到session
 		if (scope == SCOPE_REQUEST) {
 			if (!isRequestActive()) {
 				throw new IllegalStateException(

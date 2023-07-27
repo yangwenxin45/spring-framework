@@ -16,30 +16,22 @@
 
 package org.springframework.core;
 
+import kotlin.reflect.KFunction;
+import kotlin.reflect.KParameter;
+import kotlin.reflect.jvm.ReflectJvmMapping;
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ObjectUtils;
+
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import kotlin.reflect.KFunction;
-import kotlin.reflect.KParameter;
-import kotlin.reflect.jvm.ReflectJvmMapping;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 
 /**
  * Helper class that encapsulates the specification of a method parameter, i.e. a {@link Method}
@@ -65,35 +57,44 @@ public class MethodParameter {
 
 	private final Executable executable;
 
-	private final int parameterIndex;
+    // 参数的序号，也就是第几个参数，从0开始计数
+    private final int parameterIndex;
 
 	@Nullable
 	private volatile Parameter parameter;
 
-	private int nestingLevel;
+    // 嵌套级别，如果是符合参数会用到
+    private int nestingLevel;
 
 	/** Map from Integer level to Integer type index */
+    // 保存每层嵌套参数的序数
 	@Nullable
 	Map<Integer, Integer> typeIndexesPerLevel;
 
 	/** The containing class. Could also be supplied by overriding {@link #getContainingClass()} */
+    // 容器的类型，也就是参数所属方法所在的类
 	@Nullable
 	private volatile Class<?> containingClass;
 
-	@Nullable
-	private volatile Class<?> parameterType;
+    // 参数的类型
+    @Nullable
+    private volatile Class<?> parameterType;
 
-	@Nullable
-	private volatile Type genericParameterType;
+    // Type型的参数类型
+    @Nullable
+    private volatile Type genericParameterType;
 
-	@Nullable
-	private volatile Annotation[] parameterAnnotations;
+    // 参数的注释
+    @Nullable
+    private volatile Annotation[] parameterAnnotations;
 
-	@Nullable
-	private volatile ParameterNameDiscoverer parameterNameDiscoverer;
+    // 参数名称查找器
+    @Nullable
+    private volatile ParameterNameDiscoverer parameterNameDiscoverer;
 
-	@Nullable
-	private volatile String parameterName;
+    // 参数名称
+    @Nullable
+    private volatile String parameterName;
 
 	@Nullable
 	private volatile MethodParameter nestedMethodParameter;

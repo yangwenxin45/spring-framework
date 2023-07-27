@@ -16,19 +16,18 @@
 
 package org.springframework.web.method.support;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.MethodParameter;
+import org.springframework.lang.Nullable;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.MethodParameter;
-import org.springframework.lang.Nullable;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
 
 /**
  * Resolves method parameters by delegating to a list of registered
@@ -39,6 +38,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @author Juergen Hoeller
  * @since 3.1
  */
+// argumentResolver的容器，可以封装多个Resolver，具体解析由封装的Resolver完成，主要为了方便调用
 public class HandlerMethodArgumentResolverComposite implements HandlerMethodArgumentResolver {
 
 	@Deprecated

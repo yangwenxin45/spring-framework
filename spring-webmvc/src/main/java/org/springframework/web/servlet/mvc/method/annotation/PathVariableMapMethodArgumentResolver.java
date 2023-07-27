@@ -16,10 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
@@ -32,15 +28,20 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Resolves {@link Map} method arguments annotated with an @{@link PathVariable}
  * where the annotation does not specify a path variable name. The created
  * {@link Map} contains all URI template name/value pairs.
  *
  * @author Rossen Stoyanchev
- * @since 3.2
  * @see PathVariableMethodArgumentResolver
+ * @since 3.2
  */
+// 解析注解了@PathVariable的Map类型的参数
 public class PathVariableMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
 	@Override

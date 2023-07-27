@@ -18,7 +18,6 @@ package org.springframework.web.method.annotation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -47,6 +46,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 不是直接解析参数的，用来兼容WebArgumentResolver类型的参数解析器的适配器
 public abstract class AbstractWebArgumentResolverAdapter implements HandlerMethodArgumentResolver {
 
 	private final Log logger = LogFactory.getLog(getClass());

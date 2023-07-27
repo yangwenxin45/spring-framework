@@ -16,8 +16,6 @@
 
 package org.springframework.web.method.annotation;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
@@ -26,6 +24,8 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import java.util.Map;
 
 /**
  * Resolves method arguments annotated with {@code @RequestHeader} except for
@@ -43,6 +43,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+// 解析注解@RequestHeader而且不是Map类型的参数（Map类型则使用RequestHeaderMapMethodArgumentResolver解析）
 public class RequestHeaderMethodArgumentResolver extends AbstractNamedValueMethodArgumentResolver {
 
 	/**
