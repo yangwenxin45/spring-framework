@@ -16,21 +16,20 @@
 
 package org.springframework.web.util;
 
-import java.net.URLDecoder;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Helper class for URL path matching. Provides support for URL paths in
@@ -62,10 +61,12 @@ public class UrlPathHelper {
 	static volatile Boolean websphereComplianceFlag;
 
 
+	// 用于设置是否总使用完整路径
 	private boolean alwaysUseFullPath = false;
 
 	private boolean urlDecode = true;
 
+	// 用于设置是否删除url中与分号相关的内容
 	private boolean removeSemicolonContent = true;
 
 	private String defaultEncoding = WebUtils.DEFAULT_CHARACTER_ENCODING;

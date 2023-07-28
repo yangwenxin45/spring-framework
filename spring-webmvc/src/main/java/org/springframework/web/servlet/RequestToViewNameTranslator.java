@@ -29,17 +29,25 @@ import javax.servlet.http.HttpServletRequest;
  * @author Juergen Hoeller
  * @since 2.0
  */
-// RequestToViewNameTranslator在Spring MVC容器里只可以配置一个，所以所有request到ViewName的转换规则都要在一个Translator里面全部实现
+
+/**
+ * RequestToViewNameTranslator在Spring MVC容器里只可以配置一个，所以所有request到ViewName的转换规则都要在一个Translator里面全部实现
+ * RequestToViewNameTranslator可以在处理器返回的view为空时使用它根据request获取viewName
+ *
+ * @author yangwenxin
+ * @date 2023-07-28 15:40
+ */
 public interface RequestToViewNameTranslator {
 
 	/**
 	 * Translate the given {@link HttpServletRequest} into a view name.
+	 *
 	 * @param request the incoming {@link HttpServletRequest} providing
-	 * the context from which a view name is to be resolved
+	 *                the context from which a view name is to be resolved
 	 * @return the view name, or {@code null} if no default found
 	 * @throws Exception if view name translation fails
 	 */
-    // 从request中获取viewName，返回默认视图名
+	// 从request中获取viewName，返回默认视图名
 	@Nullable
 	String getViewName(HttpServletRequest request) throws Exception;
 
