@@ -16,18 +16,6 @@
 
 package org.springframework.web.servlet.view;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.Ordered;
@@ -50,8 +38,13 @@ import org.springframework.web.servlet.SmartView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+
 /**
- * Implementation of {@link ViewResolver} that resolves a view based on the request file name
+ * Implementation of {@link org.springframework.web.servlet.ViewResolver} that resolves a view based on the request file name
  * or {@code Accept} header.
  *
  * <p>The {@code ContentNegotiatingViewResolver} does not resolve views itself, but delegates to
@@ -82,8 +75,18 @@ import org.springframework.web.servlet.ViewResolver;
  * @author Rossen Stoyanchev
  * @since 3.0
  * @see ViewResolver
- * @see InternalResourceViewResolver
- * @see BeanNameViewResolver
+ * @see org.springframework.web.servlet.view.InternalResourceViewResolver
+ * @see org.springframework.web.servlet.view.BeanNameViewResolver
+ */
+
+/**
+ * ContentNegotiatingViewResolver解析器的作用是在别的解析器解析的结果上增加了对MediaType和后缀的支持
+ * 整个过程是这样的：
+ * 首先遍历所封装的ViewResolver具体解析视图，可能会解析出多个视图，然后再根据request获取MediaType，
+ * 也可能会有多个结果，最后对这两个结果进行匹配查找出最优的视图
+ *
+ * @author yangwenxin
+ * @date 2023-07-27 15:56
  */
 public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 		implements ViewResolver, Ordered, InitializingBean {
@@ -181,8 +184,10 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 
 	@Override
 	protected void initServletContext(ServletContext servletContext) {
+		// 获取容器中所有ViewResovler类型的bean，注意这里是从整个spring容器而不是SpringMVC容器中获取的
 		Collection<ViewResolver> matchingBeans =
 				BeanFactoryUtils.beansOfTypeIncludingAncestors(obtainApplicationContext(), ViewResolver.class).values();
+		// 如果没有手动注册则将容器中找到的ViewResolver设置给viewResolvers
 		if (this.viewResolvers == null) {
 			this.viewResolvers = new ArrayList<>(matchingBeans.size());
 			for (ViewResolver viewResolver : matchingBeans) {
@@ -192,6 +197,7 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 			}
 		}
 		else {
+			// 如果是手动注册的，并且在容器中不存在，则进行初始化
 			for (int i = 0; i < this.viewResolvers.size(); i++) {
 				ViewResolver vr = this.viewResolvers.get(i);
 				if (matchingBeans.contains(vr)) {
@@ -206,6 +212,7 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 			logger.warn("Did not find any ViewResolvers to delegate to; please configure them using the " +
 					"'viewResolvers' property on the ContentNegotiatingViewResolver");
 		}
+		// 按照Order属性进行排序
 		AnnotationAwareOrderComparator.sort(this.viewResolvers);
 		this.cnmFactoryBean.setServletContext(servletContext);
 	}
@@ -221,11 +228,15 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 	@Override
 	@Nullable
 	public View resolveViewName(String viewName, Locale locale) throws Exception {
+		// 使用RequestContextHolder获取RequestAttributes，进而在下面获取request
 		RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
 		Assert.state(attrs instanceof ServletRequestAttributes, "No current ServletRequestAttributes");
+		// 使用request获取MediaType，用作需要满足的条件
 		List<MediaType> requestedMediaTypes = getMediaTypes(((ServletRequestAttributes) attrs).getRequest());
 		if (requestedMediaTypes != null) {
+			// 获取所有候选视图，内部通过遍历封装的viewResolvers来解析
 			List<View> candidateViews = getCandidateViews(viewName, locale, requestedMediaTypes);
+			// 从多个候选视图中找出最优视图
 			View bestView = getBestView(candidateViews, requestedMediaTypes, attrs);
 			if (bestView != null) {
 				return bestView;
@@ -328,6 +339,7 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 
 	@Nullable
 	private View getBestView(List<View> candidateViews, List<MediaType> requestedMediaTypes, RequestAttributes attrs) {
+		// 判断候选视图中有没有redirect视图，如果有直接将其返回
 		for (View candidateView : candidateViews) {
 			if (candidateView instanceof SmartView) {
 				SmartView smartView = (SmartView) candidateView;
@@ -342,7 +354,9 @@ public class ContentNegotiatingViewResolver extends WebApplicationObjectSupport
 		for (MediaType mediaType : requestedMediaTypes) {
 			for (View candidateView : candidateViews) {
 				if (StringUtils.hasText(candidateView.getContentType())) {
+					// 根据候选视图获取对应的MediaType
 					MediaType candidateContentType = MediaType.parseMediaType(candidateView.getContentType());
+					// 判断当前MediaType是否支持从候选视图获取对应的MediaType，如text/*可以支持text/html，text/css、text/xml等所有text的类型
 					if (mediaType.isCompatibleWith(candidateContentType)) {
 						if (logger.isDebugEnabled()) {
 							logger.debug("Returning [" + candidateView + "] based on requested media type '" +

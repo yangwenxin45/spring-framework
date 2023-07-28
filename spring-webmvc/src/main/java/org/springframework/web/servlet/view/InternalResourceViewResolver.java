@@ -46,11 +46,13 @@ import org.springframework.util.ClassUtils;
  * @see InternalResourceView
  * @see JstlView
  */
+// 用于解析jsp视图
 public class InternalResourceViewResolver extends UrlBasedViewResolver {
 
 	private static final boolean jstlPresent = ClassUtils.isPresent(
 			"javax.servlet.jsp.jstl.core.Config", InternalResourceViewResolver.class.getClassLoader());
 
+	// 用于标示是否在可以使用forward的情况下也强制使用include，默认为false，可以在注册解析器时配置
 	@Nullable
 	private Boolean alwaysInclude;
 
@@ -107,6 +109,7 @@ public class InternalResourceViewResolver extends UrlBasedViewResolver {
 		if (this.alwaysInclude != null) {
 			view.setAlwaysInclude(this.alwaysInclude);
 		}
+		// 用于阻止循环调用，也就是请求处理完成后又转发回了原来使用的处理器的情况
 		view.setPreventDispatchLoop(true);
 		return view;
 	}

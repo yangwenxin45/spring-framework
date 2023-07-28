@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Juergen Hoeller
  * @see #loadView
  */
+// AbstractCachingViewResolver提供了统一的缓存功能，当视图解析过一次就被缓存起来，直到缓存被删除前视图的解析都会自动从缓存中获取
 public abstract class AbstractCachingViewResolver extends WebApplicationObjectSupport implements ViewResolver {
 
 	/** Default maximum number of entries for the view cache: 1024 */
@@ -60,6 +61,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 
 
 	/** The maximum number of entries in the cache */
+	// 设置最大缓存数的，如果往里面添加视图时超过了这个数那么最前面缓存的值将会删除
 	private volatile int cacheLimit = DEFAULT_CACHE_LIMIT;
 
 	/** Whether we should refrain from resolving views again if unresolved once */
@@ -69,6 +71,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 	private final Map<Object, View> viewAccessCache = new ConcurrentHashMap<>(DEFAULT_CACHE_LIMIT);
 
 	/** Map from view key to View instance, synchronized for View creation */
+	// LinkedHashMap中有一个removeEldestEntry方法，如果这个方法返回true，Map中最前面添加的内容将被删除，是在添加属性的put或putAll方法被调用后自动调用的
 	@SuppressWarnings("serial")
 	private final Map<Object, View> viewCreationCache =
 			new LinkedHashMap<Object, View>(DEFAULT_CACHE_LIMIT, 0.75f, true) {
@@ -158,6 +161,7 @@ public abstract class AbstractCachingViewResolver extends WebApplicationObjectSu
 					view = this.viewCreationCache.get(cacheKey);
 					if (view == null) {
 						// Ask the subclass to create the View object.
+						// 创建视图
 						view = createView(viewName, locale);
 						if (view == null && this.cacheUnresolved) {
 							view = UNRESOLVED_VIEW;

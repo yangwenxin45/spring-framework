@@ -38,6 +38,7 @@ import org.springframework.web.servlet.view.AbstractTemplateViewResolver;
  * @see #setExposeSpringMacroHelpers
  * @see FreeMarkerView
  */
+// 用于解析Freemarker视图
 public class FreeMarkerViewResolver extends AbstractTemplateViewResolver {
 
 	/**

@@ -52,7 +52,7 @@ public interface ViewResolver {
 	 * @throws Exception if the view cannot be resolved
 	 * (typically in case of problems creating an actual View object)
 	 */
-    // 用来将String类型的视图名和Locale解析为View类型的视图
+    // 用来将String类型的视图名和Locale解析为View类型的视图，解析过程主要做两件事：解析出使用的模板和视图的类型
 	@Nullable
 	View resolveViewName(String viewName, Locale locale) throws Exception;
 

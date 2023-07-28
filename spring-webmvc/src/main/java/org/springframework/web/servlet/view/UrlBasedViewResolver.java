@@ -167,6 +167,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	 * This implementation returns AbstractUrlBasedView.
 	 * @see AbstractUrlBasedView
 	 */
+	// 用于在设置视图时判断所设置的类型是否支持
 	protected Class<?> requiredViewClass() {
 		return AbstractUrlBasedView.class;
 	}
@@ -449,6 +450,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	 * This implementation returns just the view name,
 	 * as this ViewResolver doesn't support localized resolution.
 	 */
+	// UrlBasedViewResolver不支持Locale，直接返回viewName
 	@Override
 	protected Object getCacheKey(String viewName, Locale locale) {
 		return viewName;
@@ -492,6 +494,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 		}
 
 		// Else fall back to superclass implementation: calling loadView.
+		// 如果都不是则调用父类的createView，也就会调用loadView
 		return super.createView(viewName, locale);
 	}
 
@@ -527,8 +530,11 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 	 */
 	@Override
 	protected View loadView(String viewName, Locale locale) throws Exception {
+		// 创建view
 		AbstractUrlBasedView view = buildView(viewName);
+		// 对创建的view初始化
 		View result = applyLifecycleMethods(viewName, view);
+		// 检查view对应的模板是否存在，如果存在则将其初始化的视图返回，否则返回null交给下一个ViewResolver处理
 		return (view.checkResource(locale) ? result : null);
 	}
 
@@ -563,14 +569,30 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 		view.setRequestContextAttribute(getRequestContextAttribute());
 		view.setAttributesMap(getAttributesMap());
 
+		/**
+		 * 如果exposePathVariables不为null，将其设置给view，它用于标示是否让view使用PathVariables，可以在ViewResolver中配置
+		 * PathVariables就是处理器中@PathVariables注解的参数
+		 * @author yangwenxin
+		 * @date 2023-07-28 14:50
+		 */
 		Boolean exposePathVariables = getExposePathVariables();
 		if (exposePathVariables != null) {
 			view.setExposePathVariables(exposePathVariables);
 		}
+		/**
+		 * 如果exposeContextBeansAsAttributes不为null，将其值设置给view，它用于标示是否可以让view使用容器中注册的bean，此参数可以在ViewResolver中设置
+		 * @author yangwenxin
+		 * @date 2023-07-28 14:52
+		 */
 		Boolean exposeContextBeansAsAttributes = getExposeContextBeansAsAttributes();
 		if (exposeContextBeansAsAttributes != null) {
 			view.setExposeContextBeansAsAttributes(exposeContextBeansAsAttributes);
 		}
+		/**
+		 * 如果exposedContextBeanNames不为null，将其值设置给view，它用于配置view可以使用容器中的哪些bean，可以在ViewResolver中配置
+		 * @author yangwenxin
+		 * @date 2023-07-28 14:54
+		 */
 		String[] exposedContextBeanNames = getExposedContextBeanNames();
 		if (exposedContextBeanNames != null) {
 			view.setExposedContextBeanNames(exposedContextBeanNames);
