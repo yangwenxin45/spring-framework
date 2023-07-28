@@ -16,10 +16,6 @@
 
 package org.springframework.web.servlet.mvc.annotation;
 
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -30,6 +26,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * A {@link org.springframework.web.servlet.HandlerExceptionResolver
@@ -53,6 +53,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * @see ResponseStatus
  * @see ResponseStatusException
  */
+// 解析有@ResponseStatus注解类型的异常
 public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionResolver implements MessageSourceAware {
 
 	@Nullable
@@ -75,6 +76,7 @@ public class ResponseStatusExceptionResolver extends AbstractHandlerExceptionRes
 				return resolveResponseStatusException((ResponseStatusException) ex, request, response, handler);
 			}
 
+            // 找到ResponseStatus注解
 			ResponseStatus status = AnnotatedElementUtils.findMergedAnnotation(ex.getClass(), ResponseStatus.class);
 			if (status != null) {
 				return resolveResponseStatus(status, request, response, handler, ex);

@@ -16,17 +16,16 @@
 
 package org.springframework.web.servlet.handler;
 
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.Ordered;
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Set;
 
 /**
  * Abstract base class for {@link HandlerExceptionResolver} implementations.
@@ -50,9 +49,11 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 
 	private int order = Ordered.LOWEST_PRECEDENCE;
 
+	// 用于配置处理器的集合
 	@Nullable
 	private Set<?> mappedHandlers;
 
+	// 用于配置处理器类型的集合
 	@Nullable
 	private Class<?>[] mappedHandlerClasses;
 
@@ -131,6 +132,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	public ModelAndView resolveException(
 			HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception ex) {
 
+		// 判断当前ExceptionResolver是否可以解析所传入处理器所抛出的异常
 		if (shouldApplyTo(request, handler)) {
 			prepareResponse(ex, response);
 			ModelAndView result = doResolveException(request, response, handler, ex);
@@ -145,6 +147,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 			return result;
 		}
 		else {
+			// 不可以解析则返回null，交给下一个ExceptionResolver解析
 			return null;
 		}
 	}
@@ -162,6 +165,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	 * @see #setMappedHandlers
 	 * @see #setMappedHandlerClasses
 	 */
+	// 如果mappedHandlers和mappedHandlerClasses设置了其中一个，那么这个ExceptionResolver就只能解析所设置的处理器所抛出的异常
 	protected boolean shouldApplyTo(HttpServletRequest request, @Nullable Object handler) {
 		if (handler != null) {
 			if (this.mappedHandlers != null && this.mappedHandlers.contains(handler)) {
@@ -215,6 +219,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	 * @see #preventCaching
 	 */
 	protected void prepareResponse(Exception ex, HttpServletResponse response) {
+		// 根据preventResponseCaching标识判断是否给response设置禁用缓存的属性
 		if (this.preventResponseCaching) {
 			preventCaching(response);
 		}

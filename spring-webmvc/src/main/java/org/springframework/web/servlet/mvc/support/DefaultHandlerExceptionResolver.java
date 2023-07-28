@@ -16,14 +16,8 @@
 
 package org.springframework.web.servlet.mvc.support;
 
-import java.io.IOException;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.Ordered;
@@ -51,6 +45,11 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * The default implementation of the {@link org.springframework.web.servlet.HandlerExceptionResolver}
@@ -139,6 +138,7 @@ import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
  * @since 3.0
  * @see org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
  */
+// 按不同类型分别对异常进行解析
 public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionResolver {
 
 	/**
@@ -257,6 +257,7 @@ public class DefaultHandlerExceptionResolver extends AbstractHandlerExceptionRes
 		if (supportedMethods != null) {
 			response.setHeader("Allow", StringUtils.arrayToDelimitedString(supportedMethods, ", "));
 		}
+		// sendError和setStatus方法的区别是前者会返回web.xml中定义的相应错误页面，后者只是设置了status而不会返回相应错误页面
 		response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
 		return new ModelAndView();
 	}
