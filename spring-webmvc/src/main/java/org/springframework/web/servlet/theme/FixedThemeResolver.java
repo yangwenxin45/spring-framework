@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 17.06.2003
  * @see #setDefaultThemeName
  */
-// 用于选择一个固定的主题
+// 用于设置一个固定的主题，主题名在设置时设置，不能修改
 public class FixedThemeResolver extends AbstractThemeResolver {
 
 	@Override

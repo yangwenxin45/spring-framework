@@ -37,7 +37,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 17.06.2003
  * @see #setThemeName
  */
-// 用于主题保存在用户的HTTP Session中
+// 用于主题保存在用户的HTTP Session中，可以修改
 public class SessionThemeResolver extends AbstractThemeResolver {
 
 	/**
