@@ -16,17 +16,8 @@
 
 package org.springframework.web.multipart.commons;
 
-import java.util.List;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUpload;
-import org.apache.commons.fileupload.FileUploadBase;
-import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.*;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-
 import org.springframework.util.Assert;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -36,6 +27,10 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 import org.springframework.web.util.WebUtils;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * Servlet-based {@link MultipartResolver} implementation for
@@ -62,6 +57,7 @@ import org.springframework.web.util.WebUtils;
 public class CommonsMultipartResolver extends CommonsFileUploadSupport
 		implements MultipartResolver, ServletContextAware {
 
+	// 是否延迟解析
 	private boolean resolveLazily = false;
 
 

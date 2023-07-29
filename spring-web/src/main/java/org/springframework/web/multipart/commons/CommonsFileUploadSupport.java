@@ -16,20 +16,12 @@
 
 package org.springframework.web.multipart.commons;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
@@ -38,6 +30,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.WebUtils;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base class for multipart resolvers that use Apache Commons FileUpload
@@ -246,12 +245,17 @@ public abstract class CommonsFileUploadSupport {
 	 * @see CommonsMultipartFile#CommonsMultipartFile(org.apache.commons.fileupload.FileItem)
 	 */
 	protected MultipartParsingResult parseFileItems(List<FileItem> fileItems, String encoding) {
+		// 保存参数
 		MultiValueMap<String, MultipartFile> multipartFiles = new LinkedMultiValueMap<>();
+		// 保存参数的ContentType
 		Map<String, String[]> multipartParameters = new HashMap<>();
+		// 保存上传的文件
 		Map<String, String> multipartParameterContentTypes = new HashMap<>();
 
 		// Extract multipart files and multipart parameters.
+		// 将fileItems分为文件和参数两类，并设置到对应的Map
 		for (FileItem fileItem : fileItems) {
+			// 如果是参数类型
 			if (fileItem.isFormField()) {
 				String value;
 				String partEncoding = determineEncoding(fileItem.getContentType(), encoding);
@@ -268,17 +272,21 @@ public abstract class CommonsFileUploadSupport {
 				String[] curParam = multipartParameters.get(fileItem.getFieldName());
 				if (curParam == null) {
 					// simple form field
+					// 单个参数
 					multipartParameters.put(fileItem.getFieldName(), new String[] {value});
 				}
 				else {
 					// array of simple form fields
+					// 数组参数
 					String[] newParam = StringUtils.addStringToArray(curParam, value);
 					multipartParameters.put(fileItem.getFieldName(), newParam);
 				}
+				// 保存参数的ContentType
 				multipartParameterContentTypes.put(fileItem.getFieldName(), fileItem.getContentType());
 			}
 			else {
 				// multipart file field
+				// 如果是文件类型
 				CommonsMultipartFile file = createMultipartFile(fileItem);
 				multipartFiles.add(file.getName(), file);
 				if (logger.isDebugEnabled()) {

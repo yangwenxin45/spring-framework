@@ -16,15 +16,14 @@
 
 package org.springframework.web.multipart.support;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
-
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 
 /**
  * Standard implementation of the {@link MultipartResolver} interface,
@@ -60,6 +59,7 @@ import org.springframework.web.multipart.MultipartResolver;
  */
 public class StandardServletMultipartResolver implements MultipartResolver {
 
+	// 是否延迟解析
 	private boolean resolveLazily = false;
 
 
@@ -83,6 +83,7 @@ public class StandardServletMultipartResolver implements MultipartResolver {
 		if (!"post".equalsIgnoreCase(request.getMethod())) {
 			return false;
 		}
+		// 检查contentType是不是以"multipart/"开头
 		return StringUtils.startsWithIgnoreCase(request.getContentType(), "multipart/");
 	}
 

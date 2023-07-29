@@ -82,6 +82,7 @@ import javax.servlet.http.HttpServletRequest;
  * @see org.springframework.web.multipart.support.StringMultipartFileEditor
  * @see org.springframework.web.servlet.DispatcherServlet
  */
+// MultipartResolver的作用是将上传请求包装成可以直接获取file的request
 public interface MultipartResolver {
 
 	/**
