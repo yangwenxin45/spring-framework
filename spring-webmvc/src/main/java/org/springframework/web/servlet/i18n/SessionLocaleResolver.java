@@ -16,15 +16,15 @@
 
 package org.springframework.web.servlet.i18n;
 
-import java.util.Locale;
-import java.util.TimeZone;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.TimeZoneAwareLocaleContext;
 import org.springframework.lang.Nullable;
 import org.springframework.web.util.WebUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * {@link org.springframework.web.servlet.LocaleResolver} implementation that
@@ -57,6 +57,7 @@ import org.springframework.web.util.WebUtils;
  * @see #setDefaultLocale
  * @see #setDefaultTimeZone
  */
+// 用于将Locale保存到Session中，可以修改
 public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 
 	/**
@@ -106,6 +107,15 @@ public class SessionLocaleResolver extends AbstractLocaleContextResolver {
 	}
 
 
+	/**
+	 * 解析Locale的过程：
+	 * 1. 首先从Session中获取
+	 * 2. 获取不到的情况下，其次获取defaultLocale
+	 * 3. 获取不到的情况下，最后获取request头的Locale
+	 *
+	 * @author yangwenxin
+	 * @date 2023-07-29 12:42
+	 */
 	@Override
 	public Locale resolveLocale(HttpServletRequest request) {
 		Locale locale = (Locale) WebUtils.getSessionAttribute(request, this.localeAttributeName);

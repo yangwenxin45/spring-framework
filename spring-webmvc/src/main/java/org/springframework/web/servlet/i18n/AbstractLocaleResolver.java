@@ -16,10 +16,10 @@
 
 package org.springframework.web.servlet.i18n;
 
-import java.util.Locale;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.LocaleResolver;
+
+import java.util.Locale;
 
 /**
  * Abstract base class for {@link LocaleResolver} implementations.
@@ -29,6 +29,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @since 1.2.9
  * @see #setDefaultLocale
  */
+// 增加了获取和设置默认Locale的能力
 public abstract class AbstractLocaleResolver implements LocaleResolver {
 
 	@Nullable

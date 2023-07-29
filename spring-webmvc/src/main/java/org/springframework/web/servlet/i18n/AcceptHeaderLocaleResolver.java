@@ -16,16 +16,16 @@
 
 package org.springframework.web.servlet.i18n;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.LocaleResolver;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.LocaleResolver;
 
 /**
  * {@link LocaleResolver} implementation that simply uses the primary locale
@@ -40,6 +40,7 @@ import org.springframework.web.servlet.LocaleResolver;
  * @since 27.02.2003
  * @see javax.servlet.http.HttpServletRequest#getLocale()
  */
+// 直接使用了Header里的"acceptlanguage"值，不可以在程序中修改
 public class AcceptHeaderLocaleResolver implements LocaleResolver {
 
 	private final List<Locale> supportedLocales = new ArrayList<>(4);
