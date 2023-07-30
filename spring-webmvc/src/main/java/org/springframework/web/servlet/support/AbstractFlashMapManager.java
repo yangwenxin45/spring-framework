@@ -16,17 +16,8 @@
 
 package org.springframework.web.servlet.support;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -35,6 +26,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.FlashMapManager;
 import org.springframework.web.util.UrlPathHelper;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A base class for {@link FlashMapManager} implementations.
@@ -91,6 +89,7 @@ public abstract class AbstractFlashMapManager implements FlashMapManager {
 	@Override
 	@Nullable
 	public final FlashMap retrieveAndUpdate(HttpServletRequest request, HttpServletResponse response) {
+		// 从存储介质中获取List<FlashMap>，是模板方法，子类实现
 		List<FlashMap> allFlashMaps = retrieveFlashMaps(request);
 		if (CollectionUtils.isEmpty(allFlashMaps)) {
 			return null;
@@ -99,12 +98,16 @@ public abstract class AbstractFlashMapManager implements FlashMapManager {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Retrieved FlashMap(s): " + allFlashMaps);
 		}
+		// 设置过期的flashMap
 		List<FlashMap> mapsToRemove = getExpiredFlashMaps(allFlashMaps);
+		// 获取与当前request匹配的flashMap
 		FlashMap match = getMatchingFlashMap(allFlashMaps, request);
+		// 如果有匹配的则将其添加到mapsToRemove，待下面删除
 		if (match != null) {
 			mapsToRemove.add(match);
 		}
 
+		// 删除mapsToRemove中保存的变量
 		if (!mapsToRemove.isEmpty()) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Removing FlashMap(s): " + mapsToRemove);
@@ -153,6 +156,7 @@ public abstract class AbstractFlashMapManager implements FlashMapManager {
 				result.add(flashMap);
 			}
 		}
+		// 遍历完后如果有多个匹配结果，则将它们排序并返回第一个
 		if (!result.isEmpty()) {
 			Collections.sort(result);
 			if (logger.isDebugEnabled()) {
@@ -168,6 +172,7 @@ public abstract class AbstractFlashMapManager implements FlashMapManager {
 	 * Uses the expected request path and query parameters saved in the FlashMap.
 	 */
 	protected boolean isFlashMapForRequest(FlashMap flashMap, HttpServletRequest request) {
+		// 检查目标路径，如果FlashMap中保存的路径和request不匹配则返回false
 		String expectedPath = flashMap.getTargetRequestPath();
 		if (expectedPath != null) {
 			String requestUri = getUrlPathHelper().getOriginatingRequestUri(request);
@@ -175,6 +180,7 @@ public abstract class AbstractFlashMapManager implements FlashMapManager {
 				return false;
 			}
 		}
+		// 检查参数，如果FlashMap中保存的url参数在request中没有则返回false
 		MultiValueMap<String, String> actualParams = getOriginatingRequestParams(request);
 		MultiValueMap<String, String> expectedParams = flashMap.getTargetRequestParams();
 		for (String expectedName : expectedParams.keySet()) {
@@ -202,20 +208,25 @@ public abstract class AbstractFlashMapManager implements FlashMapManager {
 			return;
 		}
 
+		// 首先对flashMap中的转发地址和参数进行编码，这里的request主要用来获取当前编码方式
 		String path = decodeAndNormalizePath(flashMap.getTargetRequestPath(), request);
 		flashMap.setTargetRequestPath(path);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Saving FlashMap=" + flashMap);
 		}
+		// 设置有效期
 		flashMap.startExpirationPeriod(getFlashMapTimeout());
 
+		// 用于获取互斥变量，是模板方法，如果子类返回值不为null则同步执行，否则不需要同步
 		Object mutex = getFlashMapsMutex(request);
 		if (mutex != null) {
 			synchronized (mutex) {
+				// 取回保存的List<FlashMap>，模板方法，子类实现，如果没获取则新建一个，然后添加现有的flashMap
 				List<FlashMap> allFlashMaps = retrieveFlashMaps(request);
 				allFlashMaps = (allFlashMaps != null ? allFlashMaps : new CopyOnWriteArrayList<>());
 				allFlashMaps.add(flashMap);
+				// 将添加完的List<FlashMap>更新到存储介质，是模板方法，子类实现
 				updateFlashMaps(allFlashMaps, request, response);
 			}
 		}
