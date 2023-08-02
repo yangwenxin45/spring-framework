@@ -16,14 +16,14 @@
 
 package org.springframework.web.servlet.view;
 
-import java.util.Enumeration;
-import java.util.Map;
+import org.springframework.web.servlet.support.RequestContext;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import org.springframework.web.servlet.support.RequestContext;
+import java.util.Enumeration;
+import java.util.Map;
 
 /**
  * Adapter base class for template-based view technologies such as FreeMarker,
@@ -50,14 +50,19 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 	public static final String SPRING_MACRO_REQUEST_CONTEXT_ATTRIBUTE = "springMacroRequestContext";
 
 
+	// 是否需要将request中的所有属性公开给合并过程，默认为false
 	private boolean exposeRequestAttributes = false;
 
+	// 是否允许request中的属性覆盖ModelAndView中同名的attribute，默认不允许这么做
 	private boolean allowRequestOverride = false;
 
+	// 是否要将session中的属性公开给视图模板与模型数据的合并过程，默认不做
 	private boolean exposeSessionAttributes = false;
 
+	// 是否允许session中同名的属性覆盖掉返回的ModelAndView中的属性，默认也是不允许这么做
 	private boolean allowSessionOverride = false;
 
+	// 是否需要为Spring提供的宏公开一个需要的RequestContext对象，默认需要
 	private boolean exposeSpringMacroHelpers = true;
 
 

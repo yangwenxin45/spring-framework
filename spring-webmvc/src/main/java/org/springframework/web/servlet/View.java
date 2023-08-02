@@ -16,11 +16,11 @@
 
 package org.springframework.web.servlet;
 
-import java.util.Map;
+import org.springframework.lang.Nullable;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.Nullable;
+import java.util.Map;
 
 /**
  * MVC View for a web interaction. Implementations are responsible for rendering
@@ -43,6 +43,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.web.servlet.view.AbstractView
  * @see org.springframework.web.servlet.view.InternalResourceView
  */
+// 一个View实现类所要做的，就是使用相应的技术API将模板和最终提供的模型数据合并到一起，最终输出结果页面给客户端
 public interface View {
 
 	/**

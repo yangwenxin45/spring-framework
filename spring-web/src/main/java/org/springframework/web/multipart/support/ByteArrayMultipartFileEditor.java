@@ -16,11 +16,11 @@
 
 package org.springframework.web.multipart.support;
 
-import java.io.IOException;
-
 import org.springframework.beans.propertyeditors.ByteArrayPropertyEditor;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * Custom {@link java.beans.PropertyEditor} for converting
@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Juergen Hoeller
  * @since 13.10.2003
  */
+// 负责MultipartFile类型到byte[]类型的转换
 public class ByteArrayMultipartFileEditor extends ByteArrayPropertyEditor {
 
 	@Override

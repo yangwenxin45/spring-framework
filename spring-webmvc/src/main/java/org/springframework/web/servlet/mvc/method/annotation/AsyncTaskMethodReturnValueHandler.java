@@ -52,6 +52,7 @@ public class AsyncTaskMethodReturnValueHandler implements HandlerMethodReturnVal
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
+		// 返回值为null，就会给mavContainer设置为请求已处理，然后返回
 		if (returnValue == null) {
 			mavContainer.setRequestHandled(true);
 			return;

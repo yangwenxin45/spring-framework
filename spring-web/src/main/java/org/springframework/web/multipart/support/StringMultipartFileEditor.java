@@ -16,11 +16,11 @@
 
 package org.springframework.web.multipart.support;
 
-import java.beans.PropertyEditorSupport;
-import java.io.IOException;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.beans.PropertyEditorSupport;
+import java.io.IOException;
 
 /**
  * Custom {@link java.beans.PropertyEditor} for converting
@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Juergen Hoeller
  * @since 13.10.2003
  */
+// MultipartFile类型到String类型的转换
 public class StringMultipartFileEditor extends PropertyEditorSupport {
 
 	@Nullable

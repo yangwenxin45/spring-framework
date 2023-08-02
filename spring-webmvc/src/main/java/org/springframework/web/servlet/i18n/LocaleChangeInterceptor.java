@@ -16,14 +16,8 @@
 
 package org.springframework.web.servlet.i18n;
 
-import java.util.Locale;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -31,15 +25,21 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
+
 /**
  * Interceptor that allows for changing the current locale on every request,
  * via a configurable request parameter (default parameter name: "locale").
  *
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
- * @since 20.06.2003
  * @see org.springframework.web.servlet.LocaleResolver
+ * @since 20.06.2003
  */
+// 根据用户请求进行面向不同Locale的视图切换
 public class LocaleChangeInterceptor extends HandlerInterceptorAdapter {
 
 	/**

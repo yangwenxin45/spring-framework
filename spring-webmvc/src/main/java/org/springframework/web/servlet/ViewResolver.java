@@ -35,6 +35,7 @@ import java.util.Locale;
  * @see org.springframework.web.servlet.view.ResourceBundleViewResolver
  * @see org.springframework.web.servlet.view.XmlViewResolver
  */
+// 职责：根据Controller所返回的ModelAndView中的逻辑视图名，为DispatcherServlet返回一个可用的View实例
 public interface ViewResolver {
 
 	/**

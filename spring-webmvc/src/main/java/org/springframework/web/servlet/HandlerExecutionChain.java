@@ -39,10 +39,12 @@ public class HandlerExecutionChain {
 
 	private static final Log logger = LogFactory.getLog(HandlerExecutionChain.class);
 
-	private final Object handler;
+    // 用于处理web请求的handler
+    private final Object handler;
 
-	@Nullable
-	private HandlerInterceptor[] interceptors;
+    // 在Handler的执行前后对处理流程进行拦截操作
+    @Nullable
+    private HandlerInterceptor[] interceptors;
 
 	@Nullable
 	private List<HandlerInterceptor> interceptorList;

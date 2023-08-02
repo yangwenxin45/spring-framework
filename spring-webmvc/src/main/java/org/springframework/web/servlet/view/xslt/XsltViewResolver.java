@@ -16,13 +16,13 @@
 
 package org.springframework.web.servlet.view.xslt;
 
-import java.util.Properties;
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.URIResolver;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.view.AbstractUrlBasedView;
 import org.springframework.web.servlet.view.UrlBasedViewResolver;
+
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.URIResolver;
+import java.util.Properties;
 
 /**
  * {@link org.springframework.web.servlet.ViewResolver} implementation that
@@ -33,6 +33,7 @@ import org.springframework.web.servlet.view.UrlBasedViewResolver;
  * @author Juergen Hoeller
  * @since 2.0
  */
+// 只负责根据逻辑视图名查找并返回XsltView类型的View实例
 public class XsltViewResolver extends UrlBasedViewResolver {
 
 	@Nullable

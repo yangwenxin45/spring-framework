@@ -16,12 +16,12 @@
 
 package org.springframework.web.context.request.async;
 
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.WebRequest;
+
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.WebRequest;
 
 /**
  * Utility methods related to processing asynchronous web requests.
@@ -40,12 +40,15 @@ public abstract class WebAsyncUtils {
 	 * Obtain the {@link WebAsyncManager} for the current request, or if not
 	 * found, create and associate it with the request.
 	 */
+    // 通过request获取WebAsyncManager，使用ServletRequest类型的request
 	public static WebAsyncManager getAsyncManager(ServletRequest servletRequest) {
 		WebAsyncManager asyncManager = null;
+        // 判断request属性里是否有保存的WebAsyncManager对象，有的话取出后直接返回
 		Object asyncManagerAttr = servletRequest.getAttribute(WEB_ASYNC_MANAGER_ATTRIBUTE);
 		if (asyncManagerAttr instanceof WebAsyncManager) {
 			asyncManager = (WebAsyncManager) asyncManagerAttr;
 		}
+        // 没有则新建一个并设置到request的相应属性中返回
 		if (asyncManager == null) {
 			asyncManager = new WebAsyncManager();
 			servletRequest.setAttribute(WEB_ASYNC_MANAGER_ATTRIBUTE, asyncManager);
@@ -57,6 +60,7 @@ public abstract class WebAsyncUtils {
 	 * Obtain the {@link WebAsyncManager} for the current request, or if not
 	 * found, create and associate it with the request.
 	 */
+    // 通过request获取WebAsyncManager，使用WebRequest类型的request
 	public static WebAsyncManager getAsyncManager(WebRequest webRequest) {
 		int scope = RequestAttributes.SCOPE_REQUEST;
 		WebAsyncManager asyncManager = null;
@@ -78,6 +82,7 @@ public abstract class WebAsyncUtils {
 	 * @param response the current response
 	 * @return an AsyncWebRequest instance (never {@code null})
 	 */
+    // 创建AsyncWebRequest
 	public static AsyncWebRequest createAsyncWebRequest(HttpServletRequest request, HttpServletResponse response) {
 		return new StandardServletAsyncWebRequest(request, response);
 	}

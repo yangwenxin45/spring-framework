@@ -43,7 +43,7 @@ import java.util.concurrent.Callable;
 
 /**
  * Extends {@link org.springframework.web.method.support.InvocableHandlerMethod} with the ability to handle return
- * values through a registered {@link HandlerMethodReturnValueHandler} and
+ * values through a registered {@link org.springframework.web.method.support.HandlerMethodReturnValueHandler} and
  * also supports setting the response status based on a method-level
  * {@code @ResponseStatus} annotation.
  *
@@ -201,6 +201,7 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 		private final MethodParameter returnType;
 
 		public ConcurrentResultHandlerMethod(final Object result, ConcurrentResultMethodParameter returnType) {
+			// 判断异步处理的返回值是不是异常类型，如果是则抛出异常，不是则直接返回
 			super((Callable<Object>) () -> {
 				if (result instanceof Exception) {
 					throw (Exception) result;

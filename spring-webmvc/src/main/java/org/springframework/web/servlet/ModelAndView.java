@@ -16,12 +16,12 @@
 
 package org.springframework.web.servlet;
 
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.CollectionUtils;
+
+import java.util.Map;
 
 /**
  * Holder for both Model and View in the web MVC framework.
@@ -47,10 +47,12 @@ import org.springframework.util.CollectionUtils;
 public class ModelAndView {
 
 	/** View instance or view name String */
+    // 视图信息
 	@Nullable
 	private Object view;
 
 	/** Model Map */
+    // 模型数据
 	@Nullable
 	private ModelMap model;
 
@@ -137,17 +139,18 @@ public class ModelAndView {
 		this.status = status;
 	}
 
-	/**
-	 * Create a new ModelAndView given a view name, model, and HTTP status.
-	 * @param viewName name of the View to render, to be resolved
-	 * by the DispatcherServlet's ViewResolver
-	 * @param model a Map of model names (Strings) to model objects
-	 * (Objects). Model entries may not be {@code null}, but the
-	 * model Map may be {@code null} if there is no model data.
-	 * @param status an HTTP status code to use for the response
-	 * (to be set just prior to View rendering)
-	 * @since 4.3
-	 */
+    /**
+     * Create a new ModelAndView given a view name, model, and HTTP status.
+     *
+     * @param viewName name of the View to render, to be resolved
+     *                 by the DispatcherServlet's ViewResolver
+     * @param model    a Map of model names (Strings) to model objects
+     *                 (Objects). Model entries may not be {@code null}, but the
+     *                 model Map may be {@code null} if there is no model data.
+     * @param status   an http status code to use for the response
+     *                 (to be set just prior to view rendering)
+     * @since 4.3
+     */
 	public ModelAndView(@Nullable String viewName, @Nullable Map<String, ?> model, @Nullable HttpStatus status) {
 		this.view = viewName;
 		if (model != null) {

@@ -16,18 +16,8 @@
 
 package org.springframework.web.context.request.async;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionException;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -36,6 +26,15 @@ import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.async.DeferredResult.DeferredResultHandler;
 import org.springframework.web.util.UrlPathHelper;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * The central class for managing asynchronous request processing, mainly intended
@@ -70,25 +69,31 @@ public final class WebAsyncManager {
 
 	private static final UrlPathHelper urlPathHelper = new UrlPathHelper();
 
+	// 专门用于Callable和WebAsyncTask类型超时的拦截器
 	private static final CallableProcessingInterceptor timeoutCallableInterceptor =
 			new TimeoutCallableProcessingInterceptor();
 
+	// 专门用于DeferredResult和ListenableFuture类型超时的拦截器
 	private static final DeferredResultProcessingInterceptor timeoutDeferredResultInterceptor =
 			new TimeoutDeferredResultProcessingInterceptor();
 
 	private static Boolean taskExecutorWarning = true;
 
 
+	// 为了支持异步处理而封装的request
 	private AsyncWebRequest asyncWebRequest;
 
+	// 用于执行Callable和WebAsyncTask类型处理，如果WebAsyncTask中没有定义executor则使用WebAsyncManager中的taskExecutor
 	private AsyncTaskExecutor taskExecutor = DEFAULT_TASK_EXECUTOR;
 
 	private volatile Object concurrentResult = RESULT_NONE;
 
 	private volatile Object[] concurrentResultContext;
 
+	// 用于所有Callable和WebAsyncTask类型的拦截器
 	private final Map<Object, CallableProcessingInterceptor> callableInterceptors = new LinkedHashMap<>();
 
+	// 用于所有DeferredResult和ListenableFuture类型的拦截器
 	private final Map<Object, DeferredResultProcessingInterceptor> deferredResultInterceptors = new LinkedHashMap<>();
 
 
@@ -271,33 +276,52 @@ public final class WebAsyncManager {
 	 * via {@link #getConcurrentResultContext()}
 	 * @throws Exception if concurrent processing failed to start
 	 */
+	/**
+	 * 用于处理Callable和WebAsyncTask类型的异步请求，使用的拦截器类型是CallableProcessingInterceptor，
+	 * 拦截器封装在CallableInterceptorChain类型的拦截器链中统一调用
+	 *
+	 * @author yangwenxin
+	 * @date 2023-08-02 14:08
+	 */
 	public void startCallableProcessing(final WebAsyncTask<?> webAsyncTask, Object... processingContext)
 			throws Exception {
 
 		Assert.notNull(webAsyncTask, "WebAsyncTask must not be null");
 		Assert.state(this.asyncWebRequest != null, "AsyncWebRequest must not be null");
 
+		// 如果webAsyncTask设置了超时时间，则将其设置到request
 		Long timeout = webAsyncTask.getTimeout();
 		if (timeout != null) {
 			this.asyncWebRequest.setTimeout(timeout);
 		}
 
+		// 如果webAsyncTask中定义了executor则设置到taskExecutor
 		AsyncTaskExecutor executor = webAsyncTask.getExecutor();
 		if (executor != null) {
 			this.taskExecutor = executor;
-		}
-		else {
+		} else {
 			logExecutorWarning();
 		}
 
+		/**
+		 * 创建并初始化拦截器临时变量，包括三部分：
+		 * 1. webAsyncTask中包含的拦截器
+		 * 2. 所有callableInterceptors属性包含的拦截器
+		 * 3. 超时拦截器
+		 *
+		 * @author yangwenxin
+		 * @date 2023-08-02 14:38
+		 */
 		List<CallableProcessingInterceptor> interceptors = new ArrayList<>();
 		interceptors.add(webAsyncTask.getInterceptor());
 		interceptors.addAll(this.callableInterceptors.values());
 		interceptors.add(timeoutCallableInterceptor);
 
+		// 从webAsyncTask中取出真正执行请求的Callable任务
 		final Callable<?> callable = webAsyncTask.getCallable();
 		final CallableInterceptorChain interceptorChain = new CallableInterceptorChain(interceptors);
 
+		// 给request添加超时处理器
 		this.asyncWebRequest.addTimeoutHandler(() -> {
 			logger.debug("Processing timeout");
 			Object result = interceptorChain.triggerAfterTimeout(this.asyncWebRequest, callable);
@@ -306,6 +330,7 @@ public final class WebAsyncManager {
 			}
 		});
 
+
 		this.asyncWebRequest.addErrorHandler(ex -> {
 			logger.debug("Processing error");
 			Object result = interceptorChain.triggerAfterError(this.asyncWebRequest, callable, ex);
@@ -313,30 +338,32 @@ public final class WebAsyncManager {
 			setConcurrentResultAndDispatch(result);
 		});
 
+		// 给request添加请求处理完成的处理器
 		this.asyncWebRequest.addCompletionHandler(() ->
 				interceptorChain.triggerAfterCompletion(this.asyncWebRequest, callable));
 
+		// 执行拦截器链中的applyBeforeConcurrentHandling方法，注意这是在主线程中执行
 		interceptorChain.applyBeforeConcurrentHandling(this.asyncWebRequest, callable);
+		// 启动异步处理
 		startAsyncProcessing(processingContext);
 		try {
+			// 使用taskExecutor执行请求
 			Future<?> future = this.taskExecutor.submit(() -> {
 				Object result = null;
 				try {
 					interceptorChain.applyPreProcess(this.asyncWebRequest, callable);
 					result = callable.call();
-				}
-				catch (Throwable ex) {
+				} catch (Throwable ex) {
 					result = ex;
-				}
-				finally {
+				} finally {
 					result = interceptorChain.applyPostProcess(this.asyncWebRequest, callable, result);
 				}
 				setConcurrentResultAndDispatch(result);
 			});
 			interceptorChain.setTaskFuture(future);
-		}
-		catch (RejectedExecutionException ex) {
+		} catch (RejectedExecutionException ex) {
 			Object result = interceptorChain.applyPostProcess(this.asyncWebRequest, callable, ex);
+			// 设置处理结果并发送请求
 			setConcurrentResultAndDispatch(result);
 			throw ex;
 		}
@@ -401,6 +428,13 @@ public final class WebAsyncManager {
 	 * @see #getConcurrentResult()
 	 * @see #getConcurrentResultContext()
 	 */
+	/**
+	 * 用于处理DeferredResult和ListenableFuture类型的异步请求，使用的拦截器是DeferredResultProcessingInterceptor拦截器，
+	 * 拦截器封装在DeferredResultInterceptorChain类型的拦截器链中统一调用
+	 *
+	 * @author yangwenxin
+	 * @date 2023-08-02 14:10
+	 */
 	public void startDeferredResultProcessing(
 			final DeferredResult<?> deferredResult, Object... processingContext) throws Exception {
 
@@ -422,8 +456,7 @@ public final class WebAsyncManager {
 		this.asyncWebRequest.addTimeoutHandler(() -> {
 			try {
 				interceptorChain.triggerAfterTimeout(this.asyncWebRequest, deferredResult);
-			}
-			catch (Throwable ex) {
+			} catch (Throwable ex) {
 				setConcurrentResultAndDispatch(ex);
 			}
 		});
@@ -434,8 +467,7 @@ public final class WebAsyncManager {
 					return;
 				}
 				deferredResult.setErrorResult(ex);
-			}
-			catch (Throwable interceptorEx) {
+			} catch (Throwable interceptorEx) {
 				setConcurrentResultAndDispatch(interceptorEx);
 			}
 		});
@@ -452,12 +484,17 @@ public final class WebAsyncManager {
 				result = interceptorChain.applyPostProcess(this.asyncWebRequest, deferredResult, result);
 				setConcurrentResultAndDispatch(result);
 			});
-		}
-		catch (Throwable ex) {
+		} catch (Throwable ex) {
 			setConcurrentResultAndDispatch(ex);
 		}
 	}
 
+	/**
+	 * processingContext参数传进来的是处理器中使用的ModelAndViewContainer
+	 *
+	 * @author yangwenxin
+	 * @date 2023-08-02 14:49
+	 */
 	private void startAsyncProcessing(Object[] processingContext) {
 		synchronized (WebAsyncManager.this) {
 			this.concurrentResult = RESULT_NONE;

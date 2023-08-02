@@ -68,7 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Extension of {@link org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter} that supports
- * {@link RequestMapping} annotated {@code HandlerMethod}s.
+ * {@link org.springframework.web.bind.annotation.RequestMapping} annotated {@code HandlerMethod}s.
  *
  * <p>Support for custom argument and return value types can be added via
  * {@link #setCustomArgumentResolvers} and {@link #setCustomReturnValueHandlers},
@@ -893,6 +893,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				if (logger.isDebugEnabled()) {
 					logger.debug("Found concurrent result value [" + result + "]");
 				}
+				// 创建新的处理异步结果的ServletInvocableHandlerMethod替换掉原来的
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
 

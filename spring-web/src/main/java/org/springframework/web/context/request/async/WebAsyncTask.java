@@ -16,14 +16,14 @@
 
 package org.springframework.web.context.request.async;
 
-import java.util.concurrent.Callable;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import java.util.concurrent.Callable;
 
 /**
  * Holder for a {@link Callable}, a timeout value, and a task executor.
@@ -34,19 +34,26 @@ import org.springframework.web.context.request.NativeWebRequest;
  */
 public class WebAsyncTask<V> implements BeanFactoryAware {
 
-	private final Callable<V> callable;
+    // 用来实际处理请求
+    private final Callable<V> callable;
 
-	private Long timeout;
+    // 设置超时时间
+    private Long timeout;
 
-	private AsyncTaskExecutor executor;
+    // 用来调用callable
+    private AsyncTaskExecutor executor;
 
-	private String executorName;
+    // 用来用容器中注册的名字配置executor
+    private String executorName;
 
-	private BeanFactory beanFactory;
+    // 用于根据名字获取executor
+    private BeanFactory beanFactory;
 
-	private Callable<V> timeoutCallback;
+    // 用于执行超时回调
+    private Callable<V> timeoutCallback;
 
-	private Callable<V> errorCallback;
+    // 用于执行请求处理完成的回调
+    private Callable<V> errorCallback;
 
 	private Runnable completionCallback;
 

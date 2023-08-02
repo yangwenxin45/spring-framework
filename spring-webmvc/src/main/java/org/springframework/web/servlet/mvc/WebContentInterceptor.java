@@ -16,14 +16,6 @@
 
 package org.springframework.web.servlet.mvc;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.http.CacheControl;
 import org.springframework.lang.Nullable;
 import org.springframework.util.AntPathMatcher;
@@ -34,6 +26,14 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.WebContentGenerator;
 import org.springframework.web.util.UrlPathHelper;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * Handler interceptor that checks the request and prepares the response.
  * Checks for supported methods and a required session, and applies the
@@ -41,23 +41,33 @@ import org.springframework.web.util.UrlPathHelper;
  * See superclass bean properties for configuration options.
  *
  * <p>All the settings supported by this interceptor can also be set on
- * {@link AbstractController}. This interceptor is mainly intended for applying
+ * {@link org.springframework.web.servlet.mvc.AbstractController}. This interceptor is mainly intended for applying
  * checks and preparations to a set of controllers mapped by a HandlerMapping.
  *
  * @author Juergen Hoeller
  * @author Brian Clozel
+ * @see org.springframework.web.servlet.mvc.AbstractController
  * @since 27.11.2003
- * @see AbstractController
+ */
+
+/**
+ * WebContentInterceptor主要做以下三件事情：
+ * 1. 检查请求方法类型是否在支持方法之列
+ * 2. 检查必要的session实例
+ * 3. 检查缓存时间并通过设置相应HTTP头的方式控制缓存行为
+ *
+ * @author yangwenxin
+ * @date 2023-08-01 11:38
  */
 public class WebContentInterceptor extends WebContentGenerator implements HandlerInterceptor {
 
-	private UrlPathHelper urlPathHelper = new UrlPathHelper();
+    private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
-	private PathMatcher pathMatcher = new AntPathMatcher();
+    private PathMatcher pathMatcher = new AntPathMatcher();
 
-	private Map<String, Integer> cacheMappings = new HashMap<>();
+    private Map<String, Integer> cacheMappings = new HashMap<>();
 
-	private Map<String, CacheControl> cacheControlMappings = new HashMap<>();
+    private Map<String, CacheControl> cacheControlMappings = new HashMap<>();
 
 
 	public WebContentInterceptor() {

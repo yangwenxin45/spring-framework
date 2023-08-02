@@ -16,20 +16,6 @@
 
 package org.springframework.web.servlet.view;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
@@ -40,6 +26,13 @@ import org.springframework.web.context.support.ContextExposingHttpServletRequest
 import org.springframework.web.context.support.WebApplicationObjectSupport;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.support.RequestContext;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Abstract base class for {@link org.springframework.web.servlet.View}
@@ -72,10 +65,12 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	@Nullable
 	private String contentType = DEFAULT_CONTENT_TYPE;
 
-	@Nullable
-	private String requestContextAttribute;
+    // 要公开给视图模板使用的org.springframework.web.servlet.support.RequestContext对应的属性名
+    @Nullable
+    private String requestContextAttribute;
 
-	private final Map<String, Object> staticAttributes = new LinkedHashMap<>();
+    // 视图的静态属性，一并放入模型数据中，最终一起公开给视图模板
+    private final Map<String, Object> staticAttributes = new LinkedHashMap<>();
 
 	private boolean exposePathVariables = true;
 
@@ -291,29 +286,39 @@ public abstract class AbstractView extends WebApplicationObjectSupport implement
 	 */
 	@Nullable
 	public String getBeanName() {
-		return this.beanName;
-	}
+        return this.beanName;
+    }
 
 
-	/**
-	 * Prepares the view given the specified model, merging it with static
-	 * attributes and a RequestContext attribute, if necessary.
-	 * Delegates to renderMergedOutputModel for the actual rendering.
-	 * @see #renderMergedOutputModel
-	 */
-	@Override
-	public void render(@Nullable Map<String, ?> model, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+    /**
+     * Prepares the view given the specified model, merging it with static
+     * attributes and a RequestContext attribute, if necessary.
+     * Delegates to renderMergedOutputModel for the actual rendering.
+     * @see #renderMergedOutputModel
+     */
+    /**
+     * 模板方法流程：
+     * 1.将添加的静态属性全部导入到现有的模型数据Map中，以便后继流程在合并视图模板的时候可以获取这些数据
+     * 2. 如果requestContextAttributes被设置（默认为null），则将其一并导入现有的模型数据Map中
+     * 3. 根据是否要产生下载内容，设置相应的HTTP Header
+     * 4. 公开renderMergedOutputModel模板方法给子类实现
+     *
+     * @author yangwenxin
+     * @date 2023-08-01 09:15
+     */
+    @Override
+    public void render(@Nullable Map<String, ?> model, HttpServletRequest request,
+                       HttpServletResponse response) throws Exception {
 
-		if (logger.isTraceEnabled()) {
-			logger.trace("Rendering view with name '" + this.beanName + "' with model " + model +
-				" and static attributes " + this.staticAttributes);
-		}
+        if (logger.isTraceEnabled()) {
+            logger.trace("Rendering view with name '" + this.beanName + "' with model " + model +
+                    " and static attributes " + this.staticAttributes);
+        }
 
-		Map<String, Object> mergedModel = createMergedOutputModel(model, request, response);
-		prepareResponse(request, response);
-		renderMergedOutputModel(mergedModel, getRequestToExpose(request), response);
-	}
+        Map<String, Object> mergedModel = createMergedOutputModel(model, request, response);
+        prepareResponse(request, response);
+        renderMergedOutputModel(mergedModel, getRequestToExpose(request), response);
+    }
 
 	/**
 	 * Creates a combined output Map (never {@code null}) that includes dynamic values and static attributes.

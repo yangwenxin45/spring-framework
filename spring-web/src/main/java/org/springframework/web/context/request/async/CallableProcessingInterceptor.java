@@ -16,10 +16,10 @@
 
 package org.springframework.web.context.request.async;
 
-import java.util.concurrent.Callable;
-
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import java.util.concurrent.Callable;
 
 /**
  * Intercepts concurrent request handling, where the concurrent result is
@@ -76,6 +76,7 @@ public interface CallableProcessingInterceptor {
 	 * @param task the task for the current async request
 	 * @throws Exception in case of errors
 	 */
+    // 在并发处理前执行，也就是在主线程中执行
 	default <T> void beforeConcurrentHandling(NativeWebRequest request, Callable<T> task) throws Exception {
 	}
 

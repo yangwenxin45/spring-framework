@@ -16,12 +16,12 @@
 
 package org.springframework.web.servlet.handler;
 
-import java.io.IOException;
+import org.springframework.lang.Nullable;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.lang.Nullable;
+import java.io.IOException;
 
 /**
  * Interceptor that checks the authorization of the current user via the
@@ -57,6 +57,7 @@ public class UserRoleAuthorizationInterceptor extends HandlerInterceptorAdapter 
 				}
 			}
 		}
+        // 验证不通过将默认返回HTTP的403状态码，即forbidden
 		handleNotAuthorized(request, response, handler);
 		return false;
 	}

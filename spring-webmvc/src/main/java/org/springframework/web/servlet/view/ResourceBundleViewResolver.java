@@ -54,7 +54,7 @@ import java.util.*;
  * @see java.util.PropertyResourceBundle
  * @see UrlBasedViewResolver
  */
-// ResourceBundleViewResolver根据properties配置文件来解析，需要将每一个视图名和对应的视图类型配置到相应的properties文件中
+// ResourceBundleViewResolver根据properties配置文件来解析，需要将视图的逻辑名称与具体视图的映射关系保存在properties文件中
 public class ResourceBundleViewResolver extends AbstractCachingViewResolver
 		implements Ordered, InitializingBean, DisposableBean {
 

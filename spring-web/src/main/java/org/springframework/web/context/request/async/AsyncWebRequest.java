@@ -16,10 +16,10 @@
 
 package org.springframework.web.context.request.async;
 
-import java.util.function.Consumer;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import java.util.function.Consumer;
 
 /**
  * Extends {@link NativeWebRequest} with methods for asynchronous request processing.
@@ -29,7 +29,7 @@ import org.springframework.web.context.request.NativeWebRequest;
  */
 public interface AsyncWebRequest extends NativeWebRequest {
 
-	/**
+    /**
 	 * Set the time required for concurrent handling to complete.
 	 * This property should not be set when concurrent handling is in progress,
 	 * i.e. when {@link #isAsyncStarted()} is {@code true}.
@@ -41,6 +41,7 @@ public interface AsyncWebRequest extends NativeWebRequest {
 	/**
 	 * Add a handler to invoke when concurrent handling has timed out.
 	 */
+    // 添加请求超时处理器
 	void addTimeoutHandler(Runnable runnable);
 
 	/**
@@ -53,6 +54,7 @@ public interface AsyncWebRequest extends NativeWebRequest {
 	/**
 	 * Add a handler to invoke when request processing completes.
 	 */
+    // 添加请求处理完成处理器
 	void addCompletionHandler(Runnable runnable);
 
 	/**
@@ -68,6 +70,7 @@ public interface AsyncWebRequest extends NativeWebRequest {
 	 * Returns "false" if asynchronous processing never started, has completed,
 	 * or the request was dispatched for further processing.
 	 */
+    // 判断是否启动了异步处理
 	boolean isAsyncStarted();
 
 	/**
@@ -79,6 +82,7 @@ public interface AsyncWebRequest extends NativeWebRequest {
 	/**
 	 * Whether asynchronous processing has completed.
 	 */
+    // 判断异步处理是否已经完成
 	boolean isAsyncComplete();
 
 }
